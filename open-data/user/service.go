@@ -1,7 +1,7 @@
-package student
+package user
 
 import (
-	"student-housting/types"
+	"open-data/types"
 	"net/http"
 	"strconv"
 	"strings"

@@ -1,6 +1,5 @@
 package types
 
-// OD_Dorms
 type ODDorm struct {
   DomID     string   `json:"domId"`        // uuid as string
   Naziv     string   `json:"naziv"`
@@ -12,7 +11,6 @@ type ODDorm struct {
   UpdatedAt string   `json:"updatedAt"`    // ISO-8601
 }
 
-// OD_PricePlans
 type ODPricePlan struct {
   DomID       string  `json:"domId"`
   RoomType    string  `json:"roomType"`    // "single","double","triple"
@@ -39,11 +37,17 @@ type ODApplicationStats struct {
   Rezervisane  int    `json:"rezervisane"`
 }
 
-// OD_PaymentStats
 type ODPaymentStats struct {
   DomID     string  `json:"domId"`
   Date      string  `json:"date"`
   Count     int     `json:"count"`
   Sum       float64 `json:"sum"`
   Currency  string  `json:"currency"`
+  
+type Student struct {
+	ID      uint   `gorm:"primaryKey" json:"ID"`
+	Index   string `json:"index,omitempty" gorm:"unique"`
+	Name    string `json:"name" gorm:"not null"`
+	Surname string `json:"surname" gorm:"not null"`
+	Faculty string `json:"faculty" gorm:"not null"`
 }
