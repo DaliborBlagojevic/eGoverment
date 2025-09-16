@@ -2,7 +2,7 @@ package data
 
 import (
 	"fmt"
-	"student-housting/types"
+	"open-data/types"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )

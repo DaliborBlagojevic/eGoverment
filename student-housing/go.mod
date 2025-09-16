@@ -1,4 +1,4 @@
-module gin
+module student-housting
 
 go 1.24.3
 
