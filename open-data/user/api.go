@@ -6,6 +6,5 @@ import (
 )
 
 func WithUserAPI(r *gin.RouterGroup, db *gorm.DB) {
-	r.GET("/students", getStudents(db))
-	r.POST("/students", createStudent(db))
+	
 }
