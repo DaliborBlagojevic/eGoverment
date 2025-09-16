@@ -43,6 +43,7 @@ type ODPaymentStats struct {
   Count     int     `json:"count"`
   Sum       float64 `json:"sum"`
   Currency  string  `json:"currency"`
+}
   
 type Student struct {
 	ID      uint   `gorm:"primaryKey" json:"ID"`
