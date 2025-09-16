@@ -1,0 +1,118 @@
+version: "3.9"
+
+services:
+
+  reverse-proxy:
+    build: ./reverse-proxy
+    ports:
+      - "8080:8080"
+    environment:
+      # Shared secret for HMAC JWT validation
+      - JWT_SECRET=${JWT_SECRET}
+      # Upstreams inside the compose network
+      - AUTH_SERVICE_URL=http://auth-service:9000
+      - SERVICE_A_URL=http://service-a:9001
+      - SERVICE_B_URL=http://service-b:9002
+    depends_on:
+      - auth-service
+      - service-a
+      - service-b
+
+  auth-service:
+    build: ./auth-service
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - ISSUER=demo-auth
+    expose:
+      - "9000"
+  open-data:
+    build:
+      context: ./open-data
+      dockerfile: Dockerfile
+    container_name: open-data
+    ports:
+      - "${SERVICE_PORT}:${SERVICE_PORT}"
+    environment:
+      - SERVICE_PORT=${SERVICE_PORT}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_NAME=${DB_NAME}
+    networks:
+      - project-net
+    depends_on:
+      database:
+        condition: service_started
+    restart: unless-stopped
+
+  student-housing:
+    build:
+      context: ./student-housing
+      dockerfile: Dockerfile
+    container_name: student-housing
+    ports:
+      - "${SERVICE_PORT}:${SERVICE_PORT}"
+    environment:
+      - SERVICE_PORT=${SERVICE_PORT}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_NAME=${DB_NAME}
+    networks:
+      - project-net
+    depends_on:
+      database:
+        condition: service_started
+    restart: unless-stopped
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: client
+    # Frontendu se pristupa preko porta 3213.
+    # NGINX servira sadrzaj preko porta 80.
+    ports:
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+    depends_on:
+      - server
+    networks:
+      - project-net
+    restart: unless-stopped
+
+  database:
+    image: postgres:15
+    container_name: database
+    # OVO NI SLUCAJNO NE SME OSTATI EXPOSOVANO
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+    command: [ "postgres", "-c", "shared_preload_libraries=pg_trgm" ]
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - project-net
+    restart: unless-stopped
+  # pgadmin:
+  #   image: dpage/pgadmin4
+  #   container_name: pgadmin
+  #   ports:
+  #     - "${PGADMIN_PORT}:80"
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+  #     PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+  #   depends_on:
+  #     - postgres
+
+volumes:
+  postgres_data:
+
+
+networks:
+  project-net:
+    driver: bridge
