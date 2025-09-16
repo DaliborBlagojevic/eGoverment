@@ -82,8 +82,8 @@ func jwtMiddleware(next http.Handler, secret []byte, exemptPaths map[string]bool
 func main() {
 	jwtSecret := []byte(mustEnv("JWT_SECRET"))
 	authURL := mustEnv("AUTH_SERVICE_URL")
-	aURL := mustEnv("SERVICE_A_URL")
-	bURL := mustEnv("SERVICE_B_URL")
+	aURL := mustEnv("OPEN_DATA_SERVICE_URL")
+	bURL := mustEnv("STUDENT_HOUSING_SERVICE_URL")
 
 	authProxy := newReverseProxy(authURL)
 	aProxy := newReverseProxy(aURL)

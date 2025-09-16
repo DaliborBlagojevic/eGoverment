@@ -1,13 +1,13 @@
-FROM golang:1.22 AS build
+FROM golang:1.24.3-alpine AS build_container
 WORKDIR /app
-COPY go.mod go.sum ./
+COPY go.mod .
+COPY go.sum .
 RUN go mod download
 COPY . .
-RUN CGO_ENABLED=0 go build -o auth
+RUN go build -o server 
 
-FROM gcr.io/distroless/base-debian12
+FROM alpine
 WORKDIR /app
-COPY --from=build /app/auth /app/auth
-USER nonroot:nonroot
-EXPOSE 9000
-ENTRYPOINT ["/app/auth"]
+COPY --from=build_container /app/server /usr/bin
+EXPOSE 8080
+ENTRYPOINT ["server"]

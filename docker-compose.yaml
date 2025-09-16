@@ -1,44 +1,50 @@
 version: "3.9"
 
 services:
-
   reverse-proxy:
     build: ./reverse-proxy
+    container_name: reverse-proxy
     ports:
-      - "8080:8080"
+      - "${REVERSE_PROXY_SERVICE_PORT}:8080"
     environment:
-      # Shared secret for HMAC JWT validation
       - JWT_SECRET=${JWT_SECRET}
-      # Upstreams inside the compose network
-      - AUTH_SERVICE_URL=http://auth-service:9000
-      - SERVICE_A_URL=http://service-a:9001
-      - SERVICE_B_URL=http://service-b:9002
+      - AUTH_SERVICE_URL=${AUTH_SERVICE_URL}
+      - OPEN_DATA_SERVICE_URL=${OPEN_DATA_SERVICE_URL}
+      - STUDENT_HOUSING_SERVICE_URL=${STUDENT_HOUSING_SERVICE_URL}
     depends_on:
       - auth-service
-      - service-a
-      - service-b
+      - open-data
+      - student-housing
+    networks:
+      - project-net
+    restart: unless-stopped
 
   auth-service:
-    build: ./auth-service
+    build: ./auth
+    container_name: auth-service
     environment:
       - JWT_SECRET=${JWT_SECRET}
       - ISSUER=demo-auth
     expose:
       - "9000"
+    networks:
+      - project-net
+    restart: unless-stopped
+
   open-data:
     build:
       context: ./open-data
       dockerfile: Dockerfile
     container_name: open-data
-    ports:
-      - "${SERVICE_PORT}:${SERVICE_PORT}"
     environment:
-      - SERVICE_PORT=${SERVICE_PORT}
+      - SERVICE_PORT=${OPEN_DATA_SERVICE_PORT}
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
       - DB_USER=${DB_USER}
       - DB_PASS=${DB_PASS}
       - DB_NAME=${DB_NAME}
+    expose:
+      - "${OPEN_DATA_SERVICE_PORT}"
     networks:
       - project-net
     depends_on:
@@ -51,15 +57,15 @@ services:
       context: ./student-housing
       dockerfile: Dockerfile
     container_name: student-housing
-    ports:
-      - "${SERVICE_PORT}:${SERVICE_PORT}"
     environment:
-      - SERVICE_PORT=${SERVICE_PORT}
+      - SERVICE_PORT=${STUDENT_HOUSING_SERVICE_PORT}
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
       - DB_USER=${DB_USER}
       - DB_PASS=${DB_PASS}
       - DB_NAME=${DB_NAME}
+    expose:
+      - "${STUDENT_HOUSING_SERVICE_PORT}"
     networks:
       - project-net
     depends_on:
@@ -70,14 +76,13 @@ services:
   client:
     build:
       context: ./client
-      dockerfile: Dockerfile
     container_name: client
-    # Frontendu se pristupa preko porta 3213.
-    # NGINX servira sadrzaj preko porta 80.
     ports:
-      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+      - "${FRONTEND_PORT}:80" # NGINX u kontejneru sluša 80
+    environment:
+      - VITE_API_URL=${VITE_API_URL}
     depends_on:
-      - server
+      - reverse-proxy
     networks:
       - project-net
     restart: unless-stopped
@@ -85,7 +90,7 @@ services:
   database:
     image: postgres:15
     container_name: database
-    # OVO NI SLUCAJNO NE SME OSTATI EXPOSOVANO
+    # ⚠️ Za produkciju ukloniti ovu liniju; za lokalni razvoj može ostati:
     ports:
       - "5432:5432"
     environment:
@@ -98,20 +103,9 @@ services:
     networks:
       - project-net
     restart: unless-stopped
-  # pgadmin:
-  #   image: dpage/pgadmin4
-  #   container_name: pgadmin
-  #   ports:
-  #     - "${PGADMIN_PORT}:80"
-  #   environment:
-  #     PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-  #     PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
-  #   depends_on:
-  #     - postgres
 
 volumes:
   postgres_data:
-
 
 networks:
   project-net:
