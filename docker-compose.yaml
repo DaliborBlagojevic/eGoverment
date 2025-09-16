@@ -2,36 +2,44 @@ version: "3.9"
 
 services:
   reverse-proxy:
-    build: ./reverse-proxy
+    build:
+      context: ./reverse-proxy
+      dockerfile: Dockerfile
     container_name: reverse-proxy
+    restart: on-failure
     ports:
-      - "${REVERSE_PROXY_SERVICE_PORT}:8080"
-    environment:
-      - JWT_SECRET=${JWT_SECRET}
-      - AUTH_SERVICE_URL=${AUTH_SERVICE_URL}
-      - OPEN_DATA_SERVICE_URL=${OPEN_DATA_SERVICE_URL}
-      - STUDENT_HOUSING_SERVICE_URL=${STUDENT_HOUSING_SERVICE_URL}
+      - "8000:8000"
     depends_on:
       - auth-service
-      - open-data
-      - student-housing
+      - open-data-service
+      - student-housing-service
     networks:
-      - project-net
-    restart: unless-stopped
+      - project-net   
+
 
   auth-service:
-    build: ./auth
-    container_name: auth-service
+    build:
+      context: ./auth
+      dockerfile: Dockerfile
+    container_name: auth
     environment:
+      - SERVICE_PORT=${AUTH_SERVICE_PORT}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_NAME=${DB_NAME}
       - JWT_SECRET=${JWT_SECRET}
       - ISSUER=demo-auth
     expose:
-      - "9000"
+      - "${AUTH_SERVICE_PORT}"
     networks:
       - project-net
+    depends_on:
+      database:
+        condition: service_started
     restart: unless-stopped
-
-  open-data:
+  open-data-service:
     build:
       context: ./open-data
       dockerfile: Dockerfile
@@ -52,7 +60,7 @@ services:
         condition: service_started
     restart: unless-stopped
 
-  student-housing:
+  student-housing-service:
     build:
       context: ./student-housing
       dockerfile: Dockerfile
@@ -76,9 +84,12 @@ services:
   client:
     build:
       context: ./client
+      dockerfile: Dockerfile
     container_name: client
     ports:
-      - "${FRONTEND_PORT}:80" # NGINX u kontejneru sluša 80
+      - "3213:5173"       
+    env_file:
+      - .env           
     environment:
       - VITE_API_URL=${VITE_API_URL}
     depends_on:
@@ -86,11 +97,14 @@ services:
     networks:
       - project-net
     restart: unless-stopped
+    volumes:
+      - ./client:/app   
+      - /app/node_modules  
+
 
   database:
     image: postgres:15
     container_name: database
-    # ⚠️ Za produkciju ukloniti ovu liniju; za lokalni razvoj može ostati:
     ports:
       - "5432:5432"
     environment:
@@ -106,6 +120,7 @@ services:
 
 volumes:
   postgres_data:
+
 
 networks:
   project-net:

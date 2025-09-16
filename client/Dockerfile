@@ -1,20 +1,15 @@
-FROM node:20 as build
-
+FROM node:20-alpine
 WORKDIR /app
 
-COPY package.json package-lock.json ./
-RUN npm install
+# Instalacija dep-ova
+COPY package*.json ./
+RUN npm ci
 
+# Kod
 COPY . .
-RUN npm run build
 
-FROM nginx:latest
+# Vite port
+EXPOSE 5173
 
-RUN rm /etc/nginx/conf.d/default.conf
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-COPY --from=build /app/dist /usr/share/nginx/html
-
-EXPOSE 3213
-
-CMD ["nginx", "-g", "daemon off;"]
+# Pokretanje Vite dev servera (HMR)
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5173", "--strictPort"]

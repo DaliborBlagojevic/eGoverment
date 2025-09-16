@@ -1,13 +1,10 @@
-FROM golang:1.24.3-alpine AS build_container
-WORKDIR /app
-COPY go.mod .
-COPY go.sum .
-RUN go mod download
-COPY . .
-RUN go build -o server 
+FROM nginx:1.26.0-alpine
 
-FROM alpine
-WORKDIR /app
-COPY --from=build_container /app/server /usr/bin
-EXPOSE 8080
-ENTRYPOINT ["server"]
+RUN rm -f /etc/nginx/conf.d/default.conf
+COPY ./api_gateway.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 8000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD wget -qO- http://localhost:8000/health || exit 1
+
+CMD ["nginx", "-g", "daemon off;"]
