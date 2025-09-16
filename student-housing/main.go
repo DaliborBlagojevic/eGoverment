@@ -1,10 +1,10 @@
 package main
 
 import (
+	"student-housting/config"
+	"student-housting/data"
+	"student-housting/student"
 	"fmt"
-	"gin/config"
-	"gin/data"
-	"gin/student"
 	"log"
 
 	"github.com/gin-gonic/gin"
