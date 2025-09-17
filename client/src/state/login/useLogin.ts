@@ -8,9 +8,11 @@ import type { LoginRequest, LoginResponse } from "../../models/login";
 import type { Company } from "../../models/company";
 
 type JwtPayload = {
-  exp: number;
-  iat: number;
-  companyId: number;
+  exp?: number;
+  iat?: number;
+  companyId?: number;
+  sub?: string;
+  role?: string;
 };
 
 export const useLogin = () => {
@@ -20,55 +22,67 @@ export const useLogin = () => {
   const login = async (payload: LoginRequest) => {
     const http = HttpService.getInstance();
 
-    let token: string;
+    let resp: LoginResponse;
 
     try {
-      const res = await http.post<LoginResponse, LoginRequest>(
-        "/company/login",
-        payload
-      );
-      token = res.token;
+      resp = await http.post<LoginResponse, LoginRequest>("/auth/login", payload);
     } catch (err: any) {
-      console.log(err.message);
-      if (err.message == "Invalid email or password") {
+      const msg = err?.message ?? "Greška pri prijavi.";
+      if (msg === "Invalid email or password") {
         throw new Error("Pogrešan e-mail ili lozinka!");
-      } else {
-        throw new Error(err.message);
       }
+      throw new Error(msg);
     }
 
+    const token = resp.access_token;
+    const tokenType = resp.token_type || "Bearer";
+    const seconds = Number(resp.expires_in) || 0;
+
     let companyId: number | undefined;
-    let exp: number | undefined;
+    let jwtExp: number | undefined;
     try {
       const decoded = jwtDecode<JwtPayload>(token);
       companyId = decoded.companyId;
-      exp = decoded.exp;
+      jwtExp = decoded.exp;
     } catch {
-      throw new Error("Neispravan token sa servera.");
+      // ako token nije JWT ili je neispravan – i dalje možemo raditi sa access_token + expires_in
     }
 
-    if (!companyId) {
-      throw new Error("companyId nije u tokenu.");
-    }
+    const cookieExpires =
+      jwtExp && jwtExp > 0
+        ? new Date(jwtExp * 1000)
+        : seconds > 0
+          ? new Date(Date.now() + seconds * 1000)
+          : undefined;
 
     Cookies.set("auth.token", token, {
       sameSite: "lax",
       secure: window.location.protocol === "https:",
-      expires: exp ? new Date(exp * 1000) : undefined,
+      expires: cookieExpires,
+      path: "/",
+    });
+    Cookies.set("auth.tokenType", tokenType, {
+      sameSite: "lax",
+      secure: window.location.protocol === "https:",
+      expires: cookieExpires,
       path: "/",
     });
 
-    const company: Company = {
-      id: companyId,
-      companyName: "",
-      email: "",
-      password: "",
-    };
-    setCompany(company);
+    if (typeof companyId === "number") {
+      const company: Company = {
+        id: companyId,
+        companyName: "",
+        email: "",
+        password: "",
+      };
+      setCompany(company);
+    } else {
+      console.warn("JWT nema companyId; preskačem setCompany.");
+    }
 
-    navigate("/calendar");
+    navigate("/main");
 
-    return { token, companyId };
+    return { token, companyId, tokenType, expiresIn: resp.expires_in };
   };
 
   return { login };

@@ -7,12 +7,11 @@ import (
 )
 
 type Student struct {
-	ID      uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
-	Index   string    `gorm:"unique;not null" json:"index"`
-	Name    string    `gorm:"not null" json:"name"`
-	Surname string    `gorm:"not null" json:"surname"`
-	Faculty string    `gorm:"not null" json:"faculty"`
-
+	ID           uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
+	Index        string    `gorm:"unique;not null" json:"index"`
+	Name         string    `gorm:"not null" json:"name"`
+	Surname      string    `gorm:"not null" json:"surname"`
+	Faculty      string    `gorm:"not null" json:"faculty"`
 	Applications []Prijava `gorm:"foreignKey:StudentID" json:"applications,omitempty"`
 }
 
@@ -20,8 +19,7 @@ type Dom struct {
 	ID     uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
 	Naziv  string    `gorm:"not null" json:"naziv"`
 	Adresa string    `gorm:"not null" json:"adresa"`
-
-	Sobe []Soba `gorm:"foreignKey:DomID" json:"sobe,omitempty"`
+	Sobe   []Soba    `gorm:"foreignKey:DomID" json:"sobe,omitempty"`
 }
 
 type Soba struct {
@@ -29,16 +27,15 @@ type Soba struct {
 	Broj      string    `gorm:"not null" json:"broj"`
 	Kapacitet int       `gorm:"not null" json:"kapacitet"`
 	Dostupna  bool      `gorm:"default:true" json:"dostupna"`
-
-	DomID   uuid.UUID `gorm:"not null" json:"domId"`
-	Prijava []Prijava `gorm:"foreignKey:SobaID" json:"prijave,omitempty"`
+	DomID     uuid.UUID `gorm:"not null" json:"domId"`
+	Prijava   []Prijava `gorm:"foreignKey:SobaID" json:"prijave,omitempty"`
 }
 
 type Prijava struct {
 	ID       uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
 	Kreirano time.Time `gorm:"autoCreateTime" json:"kreirano"`
 	Bodovi   int       `json:"bodovi"`
-	
+
 	Status Status `gorm:"type:varchar(20);not null" json:"status"`
 
 	StudentID uuid.UUID  `gorm:"not null" json:"studentId"`
@@ -58,8 +55,8 @@ type Uplatnica struct {
 type Status string
 
 const (
-	StatusPredata    Status = "PREDATA"
-	StatusPrihvacena Status = "PRIHVACENA"
-	StatusOdbijena   Status = "ODBIJENA"
+	StatusPredata     Status = "PREDATA"
+	StatusPrihvacena  Status = "PRIHVACENA"
+	StatusOdbijena    Status = "ODBIJENA"
 	StatusRezervisana Status = "REZERVISANA"
 )
