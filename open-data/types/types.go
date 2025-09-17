@@ -13,16 +13,16 @@ type ODDorm struct {
 
 type ODPricePlan struct {
   DomID       string  `json:"domId"`
-  RoomType    string  `json:"roomType"`    // "single","double","triple"
+  RoomType    string  `json:"roomType"`   
   Monthly     float64 `json:"monthlyPrice"`
-  Currency    string  `json:"currency"`    // "RSD","EUR"
+  Currency    string  `json:"currency"`   
   UpdatedAt   string  `json:"updatedAt"`
 }
 
 // OD_DailyAvailability
 type ODDailyAvailability struct {
   DomID     string `json:"domId"`
-  Date      string `json:"date"`       // YYYY-MM-DD
+  Date      string `json:"date"`      
   TotalBeds int    `json:"totalBeds"`
   FreeBeds  int    `json:"freeBeds"`
 }
@@ -43,6 +43,7 @@ type ODPaymentStats struct {
   Count     int     `json:"count"`
   Sum       float64 `json:"sum"`
   Currency  string  `json:"currency"`
+}
   
 type Student struct {
 	ID      uint   `gorm:"primaryKey" json:"ID"`

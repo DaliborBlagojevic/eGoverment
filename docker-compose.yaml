@@ -14,8 +14,7 @@ services:
       - open-data-service
       - student-housing-service
     networks:
-      - project-net   
-
+      - project-net
 
   auth-service:
     build:
@@ -87,20 +86,14 @@ services:
       dockerfile: Dockerfile
     container_name: client
     ports:
-      - "3213:5173"       
-    env_file:
-      - .env           
-    environment:
-      - VITE_API_URL=${VITE_API_URL}
+      - "${FRONTEND_PORT}:5173"
     depends_on:
-      - reverse-proxy
+      - student-housing-service
+      - auth-service
+      - open-data-service
     networks:
       - project-net
     restart: unless-stopped
-    volumes:
-      - ./client:/app   
-      - /app/node_modules  
-
 
   database:
     image: postgres:15
