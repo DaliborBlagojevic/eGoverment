@@ -1,6 +1,4 @@
-// package od // ili package services
-
-package mappers
+package user
 
 import (
 	"open-data/types"

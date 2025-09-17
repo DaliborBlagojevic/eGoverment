@@ -1,20 +1,21 @@
 package main
 
 import (
-	"student-housting/config"
-	"student-housting/data"
-	"student-housting/student"
 	"fmt"
 	"log"
 
 	"github.com/gin-gonic/gin"
+
+	"student-housting/config"
+	"student-housting/data"
+	"student-housting/student"
 )
 
 func main() {
 	cfg := config.GetConfig()
 
+	// DB
 	db, err := data.InitDB(cfg.DBHost, cfg.DBUser, cfg.DBPass, cfg.DBName, 5432)
-
 	if err != nil {
 		panic(fmt.Sprintf("Failed to connect to database: %v", err))
 	}
@@ -22,22 +23,24 @@ func main() {
 		panic(err)
 	}
 
-	// Release mode
+
 	gin.SetMode(gin.ReleaseMode)
-	router := gin.Default()
+	r := gin.New()
+	r.Use(gin.Recovery(), gin.Logger())
 
-	if err := router.SetTrustedProxies(nil); err != nil {
-		panic("Error setting trusted proxies")
-	}
 
-	api := router.Group("")
+	r.GET("/healthz", func(c *gin.Context) { c.String(200, "ok") })
 
-	// auth.WithAuthAPI(api)
+	api := r.Group("/api")
+
 	student.WithStudentAPI(api, db)
+	student.WithDormAPI(api, db)
+	student.WithRoomAPI(api, db)
+	student.WithApplicationAPI(api, db)
+	student.WithPaymentAPI(api, db)
 
-	url := fmt.Sprintf("%s:%d", cfg.ServiceHost, cfg.ServicePort)
-
-	if err := router.Run(url); err != nil {
-		log.Fatal("greska prilikom pokretanja servera", err)
+	addr := fmt.Sprintf("%s:%d", cfg.ServiceHost, cfg.ServicePort)
+	if err := r.Run(addr); err != nil {
+		log.Fatal("greska prilikom pokretanja servera: ", err)
 	}
 }

@@ -22,10 +22,10 @@ func AutoMigrate(db *gorm.DB) error {
 
 	err := db.AutoMigrate(
 		&types.Student{},
-		&types.Dom{},
-		&types.Soba{},
-		&types.Prijava{},
-		&types.Uplatnica{},
+		&types.Dorm{},
+		&types.Room{},
+		&types.Application{},
+		&types.Payment{},
 		//OVDE DODAJ NOVI TIp
 		//TODO
 	)
