@@ -3,6 +3,7 @@ package data
 import (
 	"fmt"
 	"student-housting/types"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -21,6 +22,10 @@ func AutoMigrate(db *gorm.DB) error {
 
 	err := db.AutoMigrate(
 		&types.Student{},
+		&types.Dorm{},
+		&types.Room{},
+		&types.Application{},
+		&types.Payment{},
 		//OVDE DODAJ NOVI TIp
 		//TODO
 	)
