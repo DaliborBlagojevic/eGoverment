@@ -1,82 +1,41 @@
 package main
 
 import (
-	"net/http"
-	"os"
-	"time"
-
+	"auth/config"
+	"auth/data"
+	"auth/user"
+	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v5"
+	"log"
 )
 
-type loginReq struct {
-	Username string `json:"email"`
-	Password string `json:"password"`
-}
-type loginResp struct {
-	AccessToken string `json:"access_token"`
-	ExpiresIn   int64  `json:"expires_in"`
-	TokenType   string `json:"token_type"`
-}
-
-func mustEnv(k string) string {
-	v := os.Getenv(k)
-	if v == "" {
-		panic("missing env " + k)
-	}
-	return v
-}
-
 func main() {
-	secret := []byte(mustEnv("JWT_SECRET"))
-	issuer := os.Getenv("ISSUER")
-	if issuer == "" {
-		issuer = "auth"
+	cfg := config.GetConfig()
+
+	db, err := data.InitDB(cfg.DBHost, cfg.DBUser, cfg.DBPass, cfg.DBName, 5432)
+
+	if err != nil {
+		panic(fmt.Sprintf("Failed to connect to database: %v", err))
+	}
+	if err = data.AutoMigrate(db); err != nil {
+		panic(err)
 	}
 
+	// Release mode
 	gin.SetMode(gin.ReleaseMode)
-	r := gin.New()
-	r.Use(gin.Logger(), gin.Recovery())
+	router := gin.Default()
 
-	r.GET("/healthz", func(c *gin.Context) {
-		c.String(http.StatusOK, "ok")
-	})
+	if err := router.SetTrustedProxies(nil); err != nil {
+		panic("Error setting trusted proxies")
+	}
 
-	r.POST("/login", func(c *gin.Context) {
-		var req loginReq
-		if err := c.ShouldBindJSON(&req); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "bad request"})
-			return
-		}
-		// Demo auth: password == "password"
-		if req.Username == "" || req.Password != "password" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
-			return
-		}
+	api := router.Group("")
 
-		claims := jwt.MapClaims{
-			"sub":  req.Username,
-			"iss":  issuer,
-			"role": "user",
-			"iat":  time.Now().Unix(),
-			"exp":  time.Now().Add(15 * time.Minute).Unix(),
-		}
-		tok := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-		signed, err := tok.SignedString(secret)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "signing failed"})
-			return
-		}
+	user.WithUserAPI(api, db)
 
-		c.JSON(http.StatusOK, loginResp{
-			AccessToken: signed,
-			ExpiresIn:   15 * 60,
-			TokenType:   "Bearer",
-		})
-	})
+	url := fmt.Sprintf("%s:%d", cfg.ServiceHost, cfg.ServicePort)
 
-	addr := ":8080"
-	if err := r.Run(addr); err != nil {
-		panic(err)
+	if err := router.Run(url); err != nil {
+		log.Fatal("greska prilikom pokretanja servera", err)
 	}
 }
