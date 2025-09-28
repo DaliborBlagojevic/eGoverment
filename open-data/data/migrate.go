@@ -2,7 +2,7 @@ package data
 
 import (
 	"fmt"
-	"open-data/types"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -20,7 +20,7 @@ func InitDB(host, user, password, dbname string, port int) (*gorm.DB, error) {
 func AutoMigrate(db *gorm.DB) error {
 
 	err := db.AutoMigrate(
-		&types.Student{},
+	
 		//OVDE DODAJ NOVI TIp
 		//TODO
 	)

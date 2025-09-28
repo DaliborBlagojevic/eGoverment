@@ -14,9 +14,15 @@ const MainPage: React.FC = () => {
             <span className="font-semibold text-gray-900">eGovernment</span>
           </div>
           <nav className="hidden sm:flex items-center gap-6 text-sm">
-            <Link to="/main" className="text-gray-900 font-medium">Početna</Link>
-            <a href="#" className="text-gray-600 hover:text-gray-900">Dokumentacija</a>
-            <a href="#" className="text-gray-600 hover:text-gray-900">Pomoć</a>
+            <Link to="/main" className="text-gray-900 font-medium">
+              Početna
+            </Link>
+            <a href="#" className="text-gray-600 hover:text-gray-900">
+              Dokumentacija
+            </a>
+            <a href="/admin" className="text-gray-600 hover:text-gray-900">
+              Pomoć
+            </a>
           </nav>
         </div>
       </header>
@@ -30,7 +36,8 @@ const MainPage: React.FC = () => {
           </h1>
           <p className="mt-3 max-w-2xl text-gray-600">
             Ovo je statična „landing” stranica nakon uspešnog logina. Ovdе može
-            stajati kratko objašnjenje, linkovi ka sekcijama aplikacije ili brzi pregledi.
+            stajati kratko objašnjenje, linkovi ka sekcijama aplikacije ili brzi
+            pregledi.
           </p>
 
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -50,7 +57,9 @@ const MainPage: React.FC = () => {
             </div>
 
             <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900">Student Housing</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                Student Housing
+              </h3>
               <p className="mt-2 text-sm text-gray-600">
                 Upravljanje smeštajem, prijavama i listama.
               </p>
@@ -65,7 +74,9 @@ const MainPage: React.FC = () => {
             </div>
 
             <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900">Podešavanja</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                Podešavanja
+              </h3>
               <p className="mt-2 text-sm text-gray-600">
                 Profil, bezbednost, preferencije i integracije.
               </p>

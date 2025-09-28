@@ -23,16 +23,28 @@ func main() {
 		panic(err)
 	}
 
+	// UBACI JEDNOG STUDENTA SVAKI PUT
+	// s := types.Student{
+	// 	ID:        uuid.New(),
+	// 	Index:     fmt.Sprintf("TEST-%d", time.Now().Unix()), // unique index
+	// 	FirstName: "Auto",
+	// 	LastName:  "Generated",
+	// 	Faculty:   "FTN",
+	// }
+	// if err := db.Create(&s).Error; err != nil {
+	// 	log.Println("❌ Failed to insert test student:", err)
+	// } else {
+	// 	log.Println("✅ Inserted test student:", s.ID, s.Index)
+	// }
 
+	// HTTP server
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
 	r.Use(gin.Recovery(), gin.Logger())
 
-
 	r.GET("/healthz", func(c *gin.Context) { c.String(200, "ok") })
 
 	api := r.Group("/api")
-
 	student.WithStudentAPI(api, db)
 	student.WithDormAPI(api, db)
 	student.WithRoomAPI(api, db)

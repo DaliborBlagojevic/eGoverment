@@ -70,7 +70,9 @@ const NewLoginPage: React.FC = () => {
             <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-600 text-white">
               <span className="text-xl font-bold">E</span>
             </div>
-            <h2 className="mt-4 text-3xl font-semibold text-gray-900">Prijava</h2>
+            <h2 className="mt-4 text-3xl font-semibold text-gray-900">
+              Prijava
+            </h2>
             <p className="mt-1 text-sm text-gray-600">
               Unesite vaše podatke za pristup nalogu.
             </p>
@@ -78,7 +80,10 @@ const NewLoginPage: React.FC = () => {
 
           <form onSubmit={onSubmit} className="space-y-5">
             <div>
-              <label htmlFor="email" className="mb-2 block text-sm font-medium text-gray-800">
+              <label
+                htmlFor="email"
+                className="mb-2 block text-sm font-medium text-gray-800"
+              >
                 Email adresa
               </label>
               <input
@@ -97,10 +102,16 @@ const NewLoginPage: React.FC = () => {
 
             <div>
               <div className="flex items-center justify-between">
-                <label htmlFor="password" className="mb-2 block text-sm font-medium text-gray-800">
+                <label
+                  htmlFor="password"
+                  className="mb-2 block text-sm font-medium text-gray-800"
+                >
                   Lozinka
                 </label>
-                <Link to="/forgot-password" className="text-sm text-emerald-700 hover:underline">
+                <Link
+                  to="/forgot-password"
+                  className="text-sm text-emerald-700 hover:underline"
+                >
                   Zaboravljena lozinka?
                 </Link>
               </div>
@@ -137,9 +148,25 @@ const NewLoginPage: React.FC = () => {
             >
               {submitting ? (
                 <>
-                  <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                  <svg
+                    className="h-5 w-5 animate-spin"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                    />
                   </svg>
                   Prijavljivanje…
                 </>
@@ -150,7 +177,10 @@ const NewLoginPage: React.FC = () => {
 
             <p className="text-center text-sm text-gray-600">
               Nemate nalog?{" "}
-              <Link to="/register" className="font-medium text-emerald-700 hover:underline">
+              <Link
+                to="/register"
+                className="font-medium text-emerald-700 hover:underline"
+              >
                 Registrujte se
               </Link>
             </p>

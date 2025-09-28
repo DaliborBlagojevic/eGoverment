@@ -44,11 +44,3 @@ type ODPaymentStats struct {
 	Sum      float64 `json:"sum"`
 	Currency string  `json:"currency"`
 }
-
-type Student struct {
-	ID      uint   `gorm:"primaryKey" json:"ID"`
-	Index   string `json:"index,omitempty" gorm:"unique"`
-	Name    string `json:"name" gorm:"not null"`
-	Surname string `json:"surname" gorm:"not null"`
-	Faculty string `json:"faculty" gorm:"not null"`
-}

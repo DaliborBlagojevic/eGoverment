@@ -340,7 +340,7 @@ func createApplication(db *gorm.DB) gin.HandlerFunc {
 		if a.StudentID == uuid.Nil { jsonErr(c, http.StatusBadRequest, "studentId is required"); return }
 		if !isValidStatus(a.Status) { jsonErr(c, http.StatusBadRequest, "invalid status"); return }
 		if a.ID == uuid.Nil { a.ID = uuid.New() }
-		if a.CreatedAt.IsZero() { a.CreatedAt = time.Now().UTC() }
+		a.CreatedAt = time.Now().UTC()
 		if err := db.Create(&a).Error; err != nil { jsonErr(c, http.StatusInternalServerError, "failed to create application"); return }
 		c.JSON(http.StatusCreated, a)
 	}
