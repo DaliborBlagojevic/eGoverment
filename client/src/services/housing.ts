@@ -93,13 +93,11 @@ export async function listApplications(
   );
   return { rows: data.items ?? [], pagination: data.pagination };
 }
-export async function createApplication(
-  payload: Omit<Application, "id" | "createdAt">
-) {
-  const data = await api.post<
-    Application,
-    Omit<Application, "id" | "createdAt">
-  >("/student-housing/api/applications", payload);
+export async function createApplication(payload: Omit<Application, "id">) {
+  const data = await api.post<Application, Omit<Application, "id">>(
+    "/student-housing/api/applications",
+    payload
+  );
   return data;
 }
 export async function updateApplication(

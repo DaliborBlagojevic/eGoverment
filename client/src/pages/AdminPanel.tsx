@@ -569,7 +569,6 @@ function ApplicationsTab() {
       roomId: (String(fd.get("roomId") || "") || undefined) as any,
       points: Number(fd.get("points") || 0),
       status: String(fd.get("status") || "SUBMITTED") as ApplicationStatus,
-      createdAt: "" as any, // backend popunjava
     } as any);
     e.currentTarget.reset();
     setCreateDormId(""); // resetuj da očisti rooms
