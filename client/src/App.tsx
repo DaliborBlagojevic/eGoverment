@@ -1,19 +1,34 @@
-import { Route, Routes } from "react-router-dom";
-import "./App.css";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import AdminLanding from "./pages/AdminLanding";
+import AdminLayout from "./pages/admin/AdminLayout";
+import StudentsPage from "./pages/admin/StudentsPage";
+import DormsPage from "./pages/admin/DormsPage";
+import RoomsPage from "./pages/admin/RoomsPage";
+import ApplicationsPage from "./pages/admin/ApplicationsPage";
+import PaymentsPage from "./pages/admin/PaymentsPage";
 import HomePage from "./pages/HomePage";
-import MainPage from "./pages/MainPage";
-import AdminPanel from "./pages/AdminPanel";
 
-function App() {
+
+// Ako imaš zasebnu login rutu, ostavi je. Ovde je fokus na adminu.
+export default function App() {
   return (
-    <Routes>
-      <Route path="/">
-        <Route index element={<HomePage />} />
-        <Route path="/main" element={<MainPage />} />
-        <Route path="/admin" element={<AdminPanel />} />
-      </Route>
-    </Routes>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<AdminLanding />} />
+        <Route path="/login" element={<HomePage />} />
+
+          <Route path="/home" element={<AdminLayout />}>
+            <Route index element={<Navigate to="dorms" replace />} />
+            <Route path="students" element={<StudentsPage />} />
+            <Route path="dorms" element={<DormsPage />} />
+            <Route path="rooms" element={<RoomsPage />} />
+            <Route path="applications" element={<ApplicationsPage />} />
+            <Route path="payments" element={<PaymentsPage />} />
+          </Route>
+
+          {/* fallback */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
-
-export default App;

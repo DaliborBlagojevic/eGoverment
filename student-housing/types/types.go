@@ -8,15 +8,36 @@ import (
 
 /* ========== Core models (English) ========== */
 
-type Student struct {
-	ID        uuid.UUID      `gorm:"type:uuid;primaryKey" json:"id"`
-	Index     string         `gorm:"unique;not null" json:"index"`
-	FirstName string         `gorm:"not null" json:"firstName"`
-	LastName  string         `gorm:"not null" json:"lastName"`
-	Faculty   string         `gorm:"not null" json:"faculty"`
+// type Student struct {
+// 	ID        uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
+// 	Index     string    `gorm:"unique;not null" json:"index"`
+// 	FirstName string    `gorm:"not null" json:"firstName"`
+// 	LastName  string    `gorm:"not null" json:"lastName"`
+// 	Faculty   string    `gorm:"not null" json:"faculty"`
 
+// 	Applications []Application `gorm:"foreignKey:StudentID" json:"applications,omitempty"`
+// }
+
+type User struct {
+	ID           uint          `gorm:"primaryKey" json:"ID"`
+	Email        string        `gorm:"unique;not null" json:"email"`
+	Username     string        `gorm:"unique;not null" json:"username"`
+	Password     string        `gorm:"not null" json:"password"`
+	Role         Role          `gorm:"not null" json:"role"`
+	Index        string        ` json:"index"`
+	FirstName    string        `gorm:"not null" json:"firstName"`
+	LastName     string        `gorm:"not null" json:"lastName"`
+	Faculty      string        `json:"faculty"`
 	Applications []Application `gorm:"foreignKey:StudentID" json:"applications,omitempty"`
 }
+
+type Role string
+
+const (
+	AdminRole   Role = "ADMIN"
+	StudentRole Role = "STUDENT"
+	TeacherRole Role = "TEACHER"
+)
 
 type Dorm struct {
 	ID      uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`

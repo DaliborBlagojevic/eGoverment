@@ -52,8 +52,8 @@ func createUser(db *gorm.DB) gin.HandlerFunc {
 			Email:    in.Email,
 			Password: string(hash),
 			Username: in.Username,
-			Name:     in.Name,
-			Surname:  in.Surname,
+			FirstName:     in.FirstName,
+			LastName:  in.LastName,
 			Role:     in.Role,
 		}
 

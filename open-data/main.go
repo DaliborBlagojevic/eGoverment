@@ -18,9 +18,9 @@ func main() {
 	if err != nil {
 		panic(fmt.Sprintf("Failed to connect to database: %v", err))
 	}
-	if err = data.AutoMigrate(db); err != nil {
-		panic(err)
-	}
+	// if err = data.AutoMigrate(db); err != nil {
+	// 	panic(err)
+	// }
 
 	// Release mode
 	gin.SetMode(gin.ReleaseMode)

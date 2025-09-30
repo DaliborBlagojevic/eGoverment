@@ -17,17 +17,17 @@ func InitDB(host, user, password, dbname string, port int) (*gorm.DB, error) {
 	return db, nil
 }
 
-func AutoMigrate(db *gorm.DB) error {
+// func AutoMigrate(db *gorm.DB) error {
 
-	err := db.AutoMigrate(
+// 	err := db.AutoMigrate(
 	
-		//OVDE DODAJ NOVI TIp
-		//TODO
-	)
-	if err != nil {
-		return err
-	}
+// 		//OVDE DODAJ NOVI TIp
+// 		//TODO
+// 	)
+// 	if err != nil {
+// 		return err
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
