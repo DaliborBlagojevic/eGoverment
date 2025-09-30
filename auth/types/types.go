@@ -3,7 +3,6 @@ package types
 type User struct {
 	ID        uint   `gorm:"primaryKey" json:"ID"`
 	Email     string `gorm:"unique;not null" json:"email"`
-	Username  string `gorm:"unique;not null" json:"username"`
 	Password  string `gorm:"not null" json:"password"`
 	FirstName string `gorm:"not null" json:"firstName"`
 	LastName  string `gorm:"not null" json:"lastName"`

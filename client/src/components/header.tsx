@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useLogout } from "../state/login/useLogout";
 
 const Header: React.FC = () => {
     return (
@@ -18,11 +19,14 @@ const Header: React.FC = () => {
                             Home
                         </Link>
                         <Link to="/home" className="text-gray-600 hover:text-gray-900">
-                            Dokumentacija
+                            Documentation
                         </Link>
-                        <Link to="/login" className="text-red-600 hover:text-red-900">
-                            Logout
-                        </Link>
+                        <button onClick={useLogout()}>
+
+                            <div className="text-red-600 hover:text-red-900">
+                                Logout
+                            </div>
+                        </button>
                     </nav>
                 </div>
             </header>
