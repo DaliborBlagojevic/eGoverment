@@ -15,14 +15,14 @@ const Header: React.FC = () => {
                     </div>
                     <nav className="hidden sm:flex items-center gap-6 text-sm">
                         <Link to="/home" className="text-gray-900 font-medium">
-                            Početna
+                            Home
                         </Link>
-                        <a href="/home" className="text-gray-600 hover:text-gray-900">
+                        <Link to="/home" className="text-gray-600 hover:text-gray-900">
                             Dokumentacija
-                        </a>
-                        <a href="/login" className="text-red-600 hover:text-red-900">
-                            Odjavi se
-                        </a>
+                        </Link>
+                        <Link to="/login" className="text-red-600 hover:text-red-900">
+                            Logout
+                        </Link>
                     </nav>
                 </div>
             </header>

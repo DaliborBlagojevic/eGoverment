@@ -14,10 +14,10 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<AdminLanding />} />
+        <Route path="/home" element={<AdminLanding />} />
         <Route path="/login" element={<HomePage />} />
 
-          <Route path="/home" element={<AdminLayout />}>
+          <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<Navigate to="dorms" replace />} />
             <Route path="students" element={<StudentsPage />} />
             <Route path="dorms" element={<DormsPage />} />

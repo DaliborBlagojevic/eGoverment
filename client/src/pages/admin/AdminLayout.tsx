@@ -26,11 +26,11 @@ export default function AdminLayout() {
                 <aside className="col-span-12 lg:col-span-3">
                     <div className="bg-white border border-gray-200 rounded-2xl p-3 shadow-sm sticky top-20">
                         <nav className="grid gap-1">
-                            <NavItem to="/home/dorms" label="Dorms" />
-                            <NavItem to="/home/rooms" label="Rooms" />
-                            <NavItem to="/home/students" label="Students" />
-                            <NavItem to="/home/applications" label="Applications" />
-                            <NavItem to="/home/payments" label="Payments" />
+                            <NavItem to="/admin/dorms" label="Dorms" />
+                            <NavItem to="/admin/rooms" label="Rooms" />
+                            <NavItem to="/admin/students" label="Students" />
+                            <NavItem to="/admin/applications" label="Applications" />
+                            <NavItem to="/admin/payments" label="Payments" />
                         </nav>
                     </div>
                 </aside>
