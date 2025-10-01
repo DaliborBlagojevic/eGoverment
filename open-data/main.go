@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 	"open-data/config"
-	"open-data/data"
-	"open-data/user"
+	"open-data/handlers"
+	"open-data/upstream"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,16 +13,6 @@ import (
 func main() {
 	cfg := config.GetConfig()
 
-	db, err := data.InitDB(cfg.DBHost, cfg.DBUser, cfg.DBPass, cfg.DBName, 5432)
-
-	if err != nil {
-		panic(fmt.Sprintf("Failed to connect to database: %v", err))
-	}
-	// if err = data.AutoMigrate(db); err != nil {
-	// 	panic(err)
-	// }
-
-	// Release mode
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 
@@ -30,13 +20,20 @@ func main() {
 		panic("Error setting trusted proxies")
 	}
 
-	api := router.Group("")
+	// Upstream klijent ka student-housing servisu
+	housingClient := upstream.NewHousingClient(cfg.HousingBaseURL, cfg.HousingTimeout)
+	dormsHandler := handlers.NewDormsHandler(housingClient)
 
-	// auth.WithAuthAPI(api)
-	user.WithUserAPI(api, db)
+	// Health
+	router.GET("/healthz", func(c *gin.Context) { c.JSON(200, gin.H{"ok": true}) })
+
+	// Public API
+	api := router.Group("")
+	{
+		api.GET("/dorms", dormsHandler.ListDorms)
+	}
 
 	url := fmt.Sprintf("%s:%d", cfg.ServiceHost, cfg.ServicePort)
-
 	if err := router.Run(url); err != nil {
 		log.Fatal("greska prilikom pokretanja servera", err)
 	}

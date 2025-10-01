@@ -107,7 +107,7 @@ func login(db *gorm.DB, issuer string, secret []byte) gin.HandlerFunc {
 		claims := jwt.MapClaims{
 			"sub":  u.Email,
 			"iss":  issuer,
-			"role": "user",
+			"role": u.Role,
 			"iat":  now.Unix(),
 			"exp":  exp.Unix(),
 		}

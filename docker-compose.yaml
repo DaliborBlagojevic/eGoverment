@@ -50,6 +50,8 @@ services:
       - DB_USER=${DB_USER}
       - DB_PASS=${DB_PASS}
       - DB_NAME=${DB_NAME}
+      - HOUSING_BASE_URL=http://student-housing-service:8080
+      - HOUSING_TIMEOUT_MS=3000
     expose:
       - "${OPEN_DATA_SERVICE_PORT}"
     networks:
