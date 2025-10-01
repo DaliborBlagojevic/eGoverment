@@ -9,17 +9,51 @@ import PaymentsPage from "./pages/admin/PaymentsPage";
 import HomePage from "./pages/HomePage";
 import NewRegisterPage from "./pages/RegisterPage";
 
+import ForbiddenPage from "./pages/ForbiddenPage";
+import { GuestOnly, RequireAuth, RequireRole } from "./auth/routeGuard";
 
-// Ako imaš zasebnu login rutu, ostavi je. Ovde je fokus na adminu.
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/home" element={<AdminLanding />} />
-        <Route path="/login" element={<HomePage />} />
-        <Route path="/register" element={<NewRegisterPage />} />
+        {/* Public ili privatno po potrebi */}
+        <Route path="/" element={<AdminLanding />} />
+        <Route
+          path="/home"
+          element={
+            <RequireAuth>
+              <AdminLanding />
+            </RequireAuth>
+          }
+        />
 
-        <Route path="/admin" element={<AdminLayout />}>
+        {/* Guest-only rute */}
+        <Route
+          path="/login"
+          element={
+            <GuestOnly>
+              <HomePage />
+            </GuestOnly>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <GuestOnly>
+              <NewRegisterPage />
+            </GuestOnly>
+          }
+        />
+
+        {/* Protected (role-based) admin sekcija */}
+        <Route
+          path="/admin"
+          element={
+            <RequireRole allow={["ADMIN", "STAFF"]}>
+              <AdminLayout />
+            </RequireRole>
+          }
+        >
           <Route index element={<Navigate to="dorms" replace />} />
           <Route path="students" element={<StudentsPage />} />
           <Route path="dorms" element={<DormsPage />} />
@@ -28,7 +62,7 @@ export default function App() {
           <Route path="payments" element={<PaymentsPage />} />
         </Route>
 
-        {/* fallback */}
+        <Route path="/403" element={<ForbiddenPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
