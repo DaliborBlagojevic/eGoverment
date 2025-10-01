@@ -14,7 +14,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func getUserByEmail(db *gorm.DB, email string) (types.User, error) {
+func getUserByEmailAndPassword(db *gorm.DB, email string) (types.User, error) {
 	var u types.User
 	if err := db.Where("email = ?", email).First(&u).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -36,7 +36,6 @@ func createUser(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 		in.Email = strings.TrimSpace(strings.ToLower(in.Email))
-		in.Username = strings.TrimSpace(in.Username)
 		if in.Email == "" || in.Password == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "email and password are required"})
 			return
@@ -49,12 +48,11 @@ func createUser(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		u := types.User{
-			Email:    in.Email,
-			Password: string(hash),
-			Username: in.Username,
-			Name:     in.Name,
-			Surname:  in.Surname,
-			Role:     in.Role,
+			Email:     in.Email,
+			Password:  string(hash),
+			FirstName: in.FirstName,
+			LastName:  in.LastName,
+			Role:      in.Role,
 		}
 
 		if err := db.WithContext(c.Request.Context()).Create(&u).Error; err != nil {
@@ -68,9 +66,8 @@ func createUser(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusCreated, types.User{
-			ID:       u.ID,
-			Email:    u.Email,
-			Username: u.Username,
+			ID:    u.ID,
+			Email: u.Email,
 		})
 	}
 }
@@ -91,17 +88,18 @@ func login(db *gorm.DB, issuer string, secret []byte) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "email/username and password are required"})
 			return
 		}
-
-		u, err := getUserByEmail(db, email)
+		
+		u, err := getUserByEmailAndPassword(db, email)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
 			return
 		}
-
-		if req.Password != "password" {
+		
+		if err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(req.Password)); err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
 			return
 		}
+
 
 		now := time.Now()
 		exp := now.Add(15 * time.Minute)

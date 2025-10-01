@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useLogin } from "../state/login/useLogin";
 
 const NewLoginPage: React.FC = () => {
   const { login } = useLogin();
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -17,7 +19,7 @@ const NewLoginPage: React.FC = () => {
 
     try {
       await login({ email, password });
-      // ovde po želji: redirect posle uspeha
+      navigate("/home", { replace: true }); // redirect na /home
     } catch (err: any) {
       setErrorMessage(err?.message ?? "Neuspešna prijava.");
       setSubmitting(false);

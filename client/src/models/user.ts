@@ -5,6 +5,11 @@ export interface User {
   companyId: number;
 }
 
+export type Role =
+  | "STUDENT"
+  | "ADMIN"
+  | "STAFF";
+
 export interface Users {
   users: User[];
 }

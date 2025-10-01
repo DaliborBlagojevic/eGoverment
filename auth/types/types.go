@@ -1,13 +1,12 @@
 package types
 
 type User struct {
-	ID       uint   `gorm:"primaryKey" json:"ID"`
-	Email    string `gorm:"unique;not null" json:"email"`
-	Username string `gorm:"unique;not null" json:"username"`
-	Password string `gorm:"not null" json:"password"`
-	Name     string `gorm:"not null" json:"name"`
-	Surname  string `gorm:"not null" json:"surname"`
-	Role     Role   `gorm:"not null" json:"role"`
+	ID        uint   `gorm:"primaryKey" json:"ID"`
+	Email     string `gorm:"unique;not null" json:"email"`
+	Password  string `gorm:"not null" json:"password"`
+	FirstName string `gorm:"not null" json:"firstName"`
+	LastName  string `gorm:"not null" json:"lastName"`
+	Role      Role   `gorm:"not null" json:"role"`
 }
 
 type Role string

@@ -7,6 +7,6 @@ export function useLogout() {
   const navigate = useNavigate();
   return useCallback(() => {
     Cookies.remove("auth.token")
-    navigate("/", { replace: true });
+    navigate("/login", { replace: true });
   }, [navigate]);
 }

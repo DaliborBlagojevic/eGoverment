@@ -2,7 +2,7 @@ package data
 
 import (
 	"fmt"
-	"auth/types"
+	// "auth/types"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -17,15 +17,15 @@ func InitDB(host, user, password, dbname string, port int) (*gorm.DB, error) {
 	return db, nil
 }
 
-func AutoMigrate(db *gorm.DB) error {
+// func AutoMigrate(db *gorm.DB) error {
 
-	err := db.AutoMigrate(
-		&types.User{},
-	)
-	if err != nil {
-		return err
-	}
+// 	err := db.AutoMigrate(
+// 		&types.User{},
+// 	)
+// 	if err != nil {
+// 		return err
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
