@@ -11,6 +11,7 @@ func WithStudentAPI(r *gin.RouterGroup, db *gorm.DB) {
 	r.POST("/students", createStudent(db))
 	r.PUT("/students/:id", updateStudent(db))
 	r.DELETE("/students/:id", deleteStudent(db))
+	r.PATCH("/api/users/:id/role", UpdateUserRole(db))
 }
 
 func WithDormAPI(r *gin.RouterGroup, db *gorm.DB) {

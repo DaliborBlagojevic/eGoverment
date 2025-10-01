@@ -188,12 +188,15 @@ function StudentsTab() {
   async function onCreate(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
+
     await createStudent({
       index: String(fd.get("index") || ""),
       firstName: String(fd.get("firstName") || ""),
       lastName: String(fd.get("lastName") || ""),
       faculty: String(fd.get("faculty") || ""),
+      email: String(fd.get("email") || ""),
     });
+
     e.currentTarget.reset();
     load();
   }
@@ -206,18 +209,32 @@ function StudentsTab() {
             <Label>Index</Label>
             <Input name="index" placeholder="e.g. 2021/0001" required />
           </div>
+
           <div className="grid gap-1">
             <Label>First name</Label>
             <Input name="firstName" required />
           </div>
+
           <div className="grid gap-1">
             <Label>Last name</Label>
             <Input name="lastName" required />
           </div>
+
+          <div className="grid gap-1">
+            <Label>Email</Label>
+            <Input
+              name="email"
+              type="email"
+              placeholder="you@example.com"
+              required
+            />
+          </div>
+
           <div className="grid gap-1">
             <Label>Faculty</Label>
             <Input name="faculty" required />
           </div>
+
           <div>
             <PrimaryBtn type="submit">Create</PrimaryBtn>
           </div>
@@ -242,6 +259,8 @@ function StudentsTab() {
                 <th className="px-3 py-2 text-left">First</th>
                 <th className="px-3 py-2 text-left">Last</th>
                 <th className="px-3 py-2 text-left">Faculty</th>
+                {/* Ako želiš da vidiš email i u tabeli, otkomentariši sledeće dve linije */}
+                {/* <th className="px-3 py-2 text-left">Email</th> */}
                 <th className="px-3 py-2 text-right">Actions</th>
               </tr>
             </thead>
@@ -252,6 +271,7 @@ function StudentsTab() {
                   <td className="px-3 py-2">{s.firstName}</td>
                   <td className="px-3 py-2">{s.lastName}</td>
                   <td className="px-3 py-2">{s.faculty}</td>
+                  {/* <td className="px-3 py-2">{s.email}</td> */}
                   <td className="px-3 py-2 text-right">
                     <DangerBtn onClick={() => deleteStudent(s.id).then(load)}>
                       Delete

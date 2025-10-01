@@ -19,9 +19,9 @@ const NewLoginPage: React.FC = () => {
 
     try {
       await login({ email, password });
-      navigate("/home", { replace: true }); // redirect na /home
+      navigate("/home", { replace: true }); // redirect to /home
     } catch (err: any) {
-      setErrorMessage(err?.message ?? "Neuspešna prijava.");
+      setErrorMessage(err?.message ?? "Login failed.");
       setSubmitting(false);
     }
   };
@@ -38,27 +38,27 @@ const NewLoginPage: React.FC = () => {
           <div className="max-w-md">
             <div className="inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 text-sm text-emerald-700 ring-1 ring-emerald-600/20">
               <span className="h-2 w-2 rounded-full bg-emerald-500" />
-              Secure Portal
+              Open Data Student Housing Portal
             </div>
             <h1 className="mt-6 text-4xl font-semibold text-emerald-950">
-              Dobrodošli nazad 👋
+              Welcome back 👋
             </h1>
             <p className="mt-4 text-emerald-900/80">
-              Prijavite se da biste pristupili kontrolnoj tabli, statistici i
-              svim alatima. Brzo, sigurno i jednostavno.
+              Sign in to access your student housing dashboard, manage
+              applications, and explore insights powered by open data.
             </p>
             <ul className="mt-8 space-y-3 text-emerald-950/80">
               <li className="flex items-center gap-3">
                 <span className="inline-block h-2 w-2 rounded-full bg-emerald-600" />
-                Dvofaktorska zaštita (opciono)
+                Transparent housing availability through open data
               </li>
               <li className="flex items-center gap-3">
                 <span className="inline-block h-2 w-2 rounded-full bg-emerald-600" />
-                Role-based pristup
+                Role-based access for students, staff, and administrators
               </li>
               <li className="flex items-center gap-3">
                 <span className="inline-block h-2 w-2 rounded-full bg-emerald-600" />
-                Audit & istorija aktivnosti
+                Data-driven insights and housing statistics
               </li>
             </ul>
           </div>
@@ -70,13 +70,11 @@ const NewLoginPage: React.FC = () => {
         <div className="w-full max-w-md">
           <div className="mb-8">
             <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-600 text-white">
-              <span className="text-xl font-bold">E</span>
+              <span className="text-xl font-bold">O</span>
             </div>
-            <h2 className="mt-4 text-3xl font-semibold text-gray-900">
-              Prijava
-            </h2>
+            <h2 className="mt-4 text-3xl font-semibold text-gray-900">Login</h2>
             <p className="mt-1 text-sm text-gray-600">
-              Unesite vaše podatke za pristup nalogu.
+              Enter your credentials to access the student housing portal.
             </p>
           </div>
 
@@ -86,7 +84,7 @@ const NewLoginPage: React.FC = () => {
                 htmlFor="email"
                 className="mb-2 block text-sm font-medium text-gray-800"
               >
-                Email adresa
+                Email address
               </label>
               <input
                 id="email"
@@ -108,13 +106,13 @@ const NewLoginPage: React.FC = () => {
                   htmlFor="password"
                   className="mb-2 block text-sm font-medium text-gray-800"
                 >
-                  Lozinka
+                  Password
                 </label>
                 <Link
                   to="/forgot-password"
                   className="text-sm text-emerald-700 hover:underline"
                 >
-                  Zaboravljena lozinka?
+                  Forgot password?
                 </Link>
               </div>
               <input
@@ -170,20 +168,20 @@ const NewLoginPage: React.FC = () => {
                       d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
                     />
                   </svg>
-                  Prijavljivanje…
+                  Signing in…
                 </>
               ) : (
-                "Prijavi se"
+                "Sign in"
               )}
             </button>
 
             <p className="text-center text-sm text-gray-600">
-              Nemate nalog?{" "}
+              Don’t have an account?{" "}
               <Link
                 to="/register"
                 className="font-medium text-emerald-700 hover:underline"
               >
-                Registrujte se
+                Register
               </Link>
             </p>
           </form>

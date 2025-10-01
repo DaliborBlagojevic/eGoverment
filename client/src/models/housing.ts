@@ -10,6 +10,7 @@ export type Student = {
   firstName: string;
   lastName: string;
   faculty: string;
+  email: string;
 };
 
 export type Dorm = {

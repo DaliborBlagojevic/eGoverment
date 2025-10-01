@@ -1,6 +1,7 @@
 package student
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -118,6 +119,61 @@ func getStudentByID(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
+type updateRoleReq struct {
+	Role string `json:"role"` // "ADMIN" | "STUDENT" | "TEACHER"
+}
+
+func isValidRole(r string) bool {
+	switch strings.ToUpper(strings.TrimSpace(r)) {
+	case string(types.AdminRole), string(types.StudentRole), string(types.TeacherRole):
+		return true
+	default:
+		return false
+	}
+}
+
+func UpdateUserRole(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		id := c.Param("id")
+		var body updateRoleReq
+		if err := c.ShouldBindJSON(&body); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid json"})
+			return
+		}
+		if !isValidRole(body.Role) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid role"})
+			return
+		}
+		newRole := types.Role(strings.ToUpper(body.Role))
+
+	
+		var u types.User
+		if err := db.First(&u, "id = ?", id).Error; err != nil {
+			if err == gorm.ErrRecordNotFound {
+				c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+				return
+			}
+			log.Printf("[UpdateUserRole] load user err: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to load user"})
+			return
+		}
+
+
+		// Update role
+		if err := db.Model(&types.User{}).
+			Where("id = ?", id).
+			Update("role", newRole).Error; err != nil {
+			log.Printf("[UpdateUserRole] update err: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update role"})
+			return
+		}
+
+		u.Role = newRole
+		c.JSON(http.StatusOK, u)
+	}
+}
+
+
 func createStudent(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var s types.User
@@ -130,6 +186,11 @@ func createStudent(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
+		// Ako nije setovan role, postavi default na STUDENT
+		if strings.TrimSpace(string(s.Role)) == "" {
+			s.Role = types.StudentRole
+		}
+
 		if err := db.Create(&s).Error; err != nil {
 			jsonErr(c, http.StatusInternalServerError, "failed to create student")
 			return
@@ -137,6 +198,8 @@ func createStudent(db *gorm.DB) gin.HandlerFunc {
 		c.JSON(http.StatusCreated, s)
 	}
 }
+
+
 
 func updateStudent(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
