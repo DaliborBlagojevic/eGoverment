@@ -377,16 +377,19 @@ func row(pdf *gofpdf.Fpdf, h float64, widths []float64, cols []string) {
 }
 
 // skraćivanje teksta da stane u ćeliju
+// — koristi ASCII "..." (ne Unicode ellipsu) i dodaje je SAMO kad je string zaista skraćen
 func truncate(pdf *gofpdf.Fpdf, s string, maxW float64) string {
-	for pdf.GetStringWidth(s) > maxW && len(s) > 0 {
-		if len(s) > 1 {
-			s = s[:len(s)-1]
-		} else {
-			break
-		}
+	if s == "" {
+		return ""
 	}
-	if pdf.GetStringWidth(s+"…") <= maxW {
-		return s + "…"
+	orig := s
+	for pdf.GetStringWidth(s) > maxW && len(s) > 0 {
+		s = s[:len(s)-1]
+	}
+	if s != orig {
+		if pdf.GetStringWidth(s+"...") <= maxW {
+			return s + "..."
+		}
 	}
 	return s
 }

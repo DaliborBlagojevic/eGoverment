@@ -9,42 +9,56 @@ import (
 )
 
 // GetOpenDorms: spaja dom + amenities + updated_at (max iz povezanih tabela, po želji).
-func GetOpenDorms(ctx context.Context, db *gorm.DB, cityFilter string) ([]types.ODDorm, error) {
-	q := db.WithContext(ctx).Raw(`
-		SELECT 
-			d.id::text       AS dom_id,
-			d.naziv          AS naziv,
-			COALESCE(d.grad, '') AS grad,
-			d.adresa         AS adresa,
-			d.website        AS website,
-			d.phone          AS phone,
-			COALESCE(string_agg(a.code, ',' ORDER BY a.code) FILTER (WHERE a.code IS NOT NULL), '') AS amenities,
-			GREATEST(
-				COALESCE(d.updated_at, 'epoch'),
-				COALESCE(MAX(pp.updated_at), 'epoch'),
-				COALESCE(MAX(av.date), 'epoch')
-			) AS updated_at
-		FROM doms d
-		LEFT JOIN dorm_amenities da ON da.dorm_id = d.id
-		LEFT JOIN amenities a ON a.id = da.amenity_id
-		LEFT JOIN price_plans pp ON pp.dorm_id = d.id
-		LEFT JOIN availability_snapshots av ON av.dorm_id = d.id
-		WHERE ($1 = '' OR d.grad = $1)
-		GROUP BY d.id
-		ORDER BY d.naziv;
-	`, cityFilter)
+func GetOpenDormsSimple(ctx context.Context, db *gorm.DB, page, pageSize int) ([]types.ODDorm, int64, error) {
+	if page < 1 {
+		page = 1
+	}
+	if pageSize <= 0 || pageSize > 200 {
+		pageSize = 20
+	}
+	offset := (page - 1) * pageSize
 
-	var rows []DormRow
-	if err := q.Scan(&rows).Error; err != nil {
-		return nil, err
+	// Minimalni row za čitanje iz tabele "dorms" bez oslanjanja na types.Dorm
+	type dormRow struct {
+		ID      string `gorm:"column:id"`      // čitamo kao text preko SELECT-a
+		Name    string `gorm:"column:name"`
+		Address string `gorm:"column:address"`
 	}
 
-	out := make([]types.ODDorm, 0, len(rows))
+	var rows []dormRow
+	// id::text da bude string; COALESCE da izbegne NULL
+	tx := db.WithContext(ctx).
+		Table("dorms").
+		Select("id::text AS id, COALESCE(name,'') AS name, COALESCE(address,'') AS address").
+		Offset(offset).
+		Limit(pageSize).
+		Scan(&rows)
+	if tx.Error != nil {
+		return nil, 0, tx.Error
+	}
+
+	var total int64
+	_ = db.WithContext(ctx).Table("dorms").Count(&total).Error
+
+	// Map u open-data tip
+	nowISO := time.Now().UTC().Format(time.RFC3339)
+	items := make([]types.ODDorm, 0, len(rows))
 	for _, r := range rows {
-		out = append(out, MapDormRowToOD(r))
+		items = append(items, types.ODDorm{
+			DomID:     r.ID,
+			Naziv:     r.Name,
+			Grad:      "",
+			Adresa:    r.Address,
+			Website:   "",
+			Phone:     "",
+			Amenities: []string{},
+			UpdatedAt: nowISO,
+		})
 	}
-	return out, nil
+
+	return items, total, nil
 }
+
 
 func GetOpenPricePlans(ctx context.Context, db *gorm.DB, domID string) ([]types.ODPricePlan, error) {
 	q := db.WithContext(ctx).Raw(`

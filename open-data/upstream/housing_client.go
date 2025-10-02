@@ -12,6 +12,26 @@ import (
 	"open-data/types"
 )
 
+/* ========= Upstream DTO-ovi (tačno prate JSON iz student-housing servisa) ========= */
+
+type dormDTO struct {
+	ID        string   `json:"id"`
+	Name      string   `json:"name"`
+	Address   string   `json:"address"`
+	City      string   `json:"city,omitempty"`
+	Website   string   `json:"website,omitempty"`
+	Phone     string   `json:"phone,omitempty"`
+	Amenities []string `json:"amenities,omitempty"` // ako upstream ne vraća, biće nil
+	UpdatedAt string   `json:"updatedAt,omitempty"`
+}
+
+type dormListRaw struct {
+	Items      []dormDTO  `json:"items"`
+	Pagination Pagination `json:"pagination"`
+}
+
+/* ========= (Postojeće) tipove ostavljamo, ali ListDorms sada vraća mapirane OD tipove ========= */
+
 type Student struct {
 	ID        uint   `gorm:"primaryKey" json:"ID"`
 	Email     string `gorm:"unique;not null" json:"email"`
@@ -72,12 +92,38 @@ func NewHousingClient(base string, timeout time.Duration) *HousingClient {
 	}
 }
 
+/* ========= LIST metode ========= */
+
+// Mapiranje dormDTO -> types.ODDorm (rešava prazna polja)
 func (c *HousingClient) ListDorms(ctx context.Context, page, pageSize int) (*DormListResponse, error) {
-	var out DormListResponse
-	if err := c.get(ctx, "/api/dorms", page, pageSize, &out); err != nil {
+	var raw dormListRaw
+	if err := c.get(ctx, "/api/dorms", page, pageSize, &raw); err != nil {
 		return nil, err
 	}
-	return &out, nil
+
+	items := make([]types.ODDorm, 0, len(raw.Items))
+	for _, d := range raw.Items {
+		// amenities: prazan niz, a ne null
+		amen := d.Amenities
+		if amen == nil {
+			amen = []string{}
+		}
+		items = append(items, types.ODDorm{
+			DomID:     d.ID,        // id -> domId
+			Naziv:     d.Name,      // name -> naziv
+			Grad:      d.City,      // city -> grad
+			Adresa:    d.Address,   // address -> adresa
+			Website:   d.Website,
+			Phone:     d.Phone,
+			Amenities: amen,
+			UpdatedAt: d.UpdatedAt, // ostavi kako upstream šalje; možeš i da staviš time.Now().UTC().Format(time.RFC3339) ako je prazno
+		})
+	}
+
+	return &DormListResponse{
+		Items:      items,
+		Pagination: raw.Pagination,
+	}, nil
 }
 
 func (c *HousingClient) ListStudents(ctx context.Context, page, pageSize int) (*StudentsListResponse, error) {
@@ -90,7 +136,8 @@ func (c *HousingClient) ListStudents(ctx context.Context, page, pageSize int) (*
 
 func (c *HousingClient) ListPricePlans(ctx context.Context, page, pageSize int) (*PricePlanListResponse, error) {
 	var out PricePlanListResponse
-	if err := c.get(ctx, "/api/payments", page, pageSize, &out); err != nil {
+	// ispravljeno: price plans ne treba da ide na /api/payments
+	if err := c.get(ctx, "/api/price-plans", page, pageSize, &out); err != nil {
 		return nil, err
 	}
 	return &out, nil
@@ -120,7 +167,8 @@ func (c *HousingClient) ListPaymentStats(ctx context.Context, page, pageSize int
 	return &out, nil
 }
 
-// zajednički GET helper
+/* ========= zajednički GET helper ========= */
+
 func (c *HousingClient) get(ctx context.Context, p string, page, pageSize int, out any) error {
 	u, err := url.Parse(c.base)
 	if err != nil {
