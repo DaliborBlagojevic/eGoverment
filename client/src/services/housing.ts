@@ -12,6 +12,7 @@ import type {
 } from "../models/housing";
 
 // ------- Students -------
+// LIST
 export async function listStudents(q = "", page = 1, pageSize = 10) {
   const data = await api.get<Pagination<Student>>(
     "/student-housing/api/students",
@@ -24,6 +25,8 @@ export async function listStudents(q = "", page = 1, pageSize = 10) {
   // backend shape: { students, pagination }
   return { rows: data.students ?? [], pagination: data.pagination };
 }
+
+// CREATE
 export async function createStudent(payload: Omit<Student, "id">) {
   const data = await api.post<Student, Omit<Student, "id">>(
     "/student-housing/api/students",
@@ -31,8 +34,37 @@ export async function createStudent(payload: Omit<Student, "id">) {
   );
   return data;
 }
+
+// DELETE
 export async function deleteStudent(id: string) {
   await api.delete(`/student-housing/api/students/${id}`);
+}
+
+// 🔽🔽 DODATO: GET BY ID
+export async function getStudentById(id: string) {
+  const data = await api.get<Student>(`/student-housing/api/students/${id}`);
+  return data;
+}
+
+// 🔽🔽 DODATO: UPDATE (JSON PUT)
+export async function updateStudent(id: string, payload: Partial<Student>) {
+  const data = await api.put<Student, Partial<Student>>(
+    `/student-housing/api/students/${id}`,
+    payload
+  );
+  return data;
+}
+
+// 🔽🔽 DODATO: CHANGE PASSWORD (PATCH)
+export async function changeStudentPassword(
+  id: string,
+  oldPassword: string,
+  newPassword: string
+) {
+  await api.patch<void, { oldPassword: string; newPassword: string }>(
+    `/student-housing/api/students/${id}`,
+    { oldPassword, newPassword }
+  );
 }
 
 // ------- Dorms -------
