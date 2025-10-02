@@ -5,7 +5,7 @@ import { PrimaryBtn, DangerBtn } from "../../components/ui/Buttons";
 import { listApplications, listPayments, createPayment, deletePayment } from "../../services/housing";
 import type { Application, Payment } from "../../models/housing";
 
-export default function PaymentsPage() {
+export default function PaymentsPageStaff() {
   const [rows, setRows] = useState<Payment[]>([]);
   const [applicationId, setApplicationId] = useState("");
   const [applications, setApplications] = useState<Application[]>([]);
@@ -95,34 +95,7 @@ export default function PaymentsPage() {
             </table>
           </div>
         </Card>
-
-        <Card title="Create payment">
-          <form onSubmit={onCreate} className="grid gap-3 max-w-xl">
-            <div className="grid gap-1">
-              <Label>Application</Label>
-              <select
-                name="applicationId"
-                required
-                className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                defaultValue=""
-              >
-                <option value="" disabled>Select application…</option>
-                {applications.map((a) => (
-                  <option key={a.id} value={a.id}>{a.id} — {a.status}</option>
-                ))}
-              </select>
-            </div>
-            <div className="grid gap-1">
-              <Label>Reference</Label>
-              <Input name="reference" required />
-            </div>
-            <div className="grid gap-1">
-              <Label>Amount</Label>
-              <Input type="number" step="0.01" name="amount" required />
-            </div>
-            <PrimaryBtn type="submit">Create</PrimaryBtn>
-          </form>
-        </Card>
+ 
       </div>
     </div>
   );

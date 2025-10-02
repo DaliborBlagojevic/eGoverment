@@ -10,11 +10,12 @@ import type {
   Pagination,
   ApplicationStatus,
 } from "../models/housing";
+import { User, UserRole } from "../pages/admin/StudentsPage";
 
 // ------- Students -------
 // LIST
 export async function listStudents(q = "", page = 1, pageSize = 10) {
-  const data = await api.get<Pagination<Student>>(
+  const data = await api.get<Pagination<User>>(
     "/student-housing/api/students",
     {
       name: q,
@@ -26,6 +27,23 @@ export async function listStudents(q = "", page = 1, pageSize = 10) {
   return { rows: data.students ?? [], pagination: data.pagination };
 }
 
+
+export async function listUsers(q: string, page = 1, pageSize = 50): Promise<{ rows: User[] }> {
+  const qs = new URLSearchParams({ q, page: String(page), pageSize: String(pageSize) }).toString();
+  const res = await fetch(`http://localhost:8000/api/student-housing/api/users`);
+  if (!res.ok) throw new Error("Failed to list users");
+  return res.json();
+}
+
+export async function updateUserRole(userId: string, role: UserRole): Promise<User> {
+  const res = await fetch(`http://localhost:8000/api/student-housing/api/users/${userId}/role`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ role }),
+  });
+  if (!res.ok) throw new Error("Failed to update role");
+  return res.json();
+}
 // CREATE
 export async function createStudent(payload: Omit<Student, "id">) {
   const data = await api.post<Student, Omit<Student, "id">>(
@@ -36,7 +54,7 @@ export async function createStudent(payload: Omit<Student, "id">) {
 }
 
 // DELETE
-export async function deleteStudent(id: string) {
+export async function deleteStudent(id: number) {
   await api.delete(`/student-housing/api/students/${id}`);
 }
 

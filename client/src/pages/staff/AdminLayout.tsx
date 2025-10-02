@@ -26,8 +26,8 @@ export default function StaffLayout() {
                 <aside className="col-span-12 lg:col-span-3">
                     <div className="bg-white border border-gray-200 rounded-2xl p-3 shadow-sm sticky top-20">
                         <nav className="grid gap-1">
-                            <NavItem to="/student/students" label="Students" />
-                        </nav>
+                            <NavItem to="/staff/applications" label="Applications" />
+                            <NavItem to="/staff/payments" label="Payments" />                        </nav>
                     </div>
                 </aside>
 

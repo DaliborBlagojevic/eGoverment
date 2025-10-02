@@ -35,7 +35,7 @@ type Role string
 const (
 	AdminRole   Role = "ADMIN"
 	StudentRole Role = "STUDENT"
-	TeacherRole Role = "TEACHER"
+	TeacherRole Role = "STAFF"
 )
 
 type Dorm struct {
@@ -63,7 +63,7 @@ type Application struct {
 
 	Status ApplicationStatus `gorm:"type:varchar(20);not null" json:"status"`
 
-	StudentID uuid.UUID  `gorm:"not null" json:"studentId"`
+	StudentID uint       `gorm:"not null" json:"studentId"`
 	RoomID    *uuid.UUID `json:"roomId,omitempty"`
 	Payment   *Payment   `gorm:"foreignKey:ApplicationID" json:"payment,omitempty"`
 }

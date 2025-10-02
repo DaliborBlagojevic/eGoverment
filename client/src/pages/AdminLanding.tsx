@@ -113,7 +113,7 @@ export default function AdminLanding() {
                 </p>
                 <div className="mt-4">
                   <Link
-                    to="/admin/dorms"
+                    to="/staff/applications"
                     className="text-emerald-600 hover:text-emerald-700 text-sm font-medium underline"
                   >
                     Open module →
@@ -149,7 +149,7 @@ export default function AdminLanding() {
                 </p>
                 <div className="mt-4">
                   <Link
-                    to="/students/students"
+                    to="/student/applications"
                     className="text-gray-900 hover:text-black text-sm font-medium underline"
                   >
                     Open settings →

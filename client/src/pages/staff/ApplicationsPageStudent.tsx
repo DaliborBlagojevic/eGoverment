@@ -14,7 +14,7 @@ import {
 } from "../../services/housing";
 import type { ApplicationStatus, Dorm, Room, Student, Application } from "../../models/housing";
 
-export default function ApplicationsPage() {
+export default function ApplicationsPageStaff() {
   const [rows, setRows] = useState<Application[]>([]);
   const [filters, setFilters] = useState<{ studentId?: string; dormId?: string; status?: ApplicationStatus; }>({});
   const statusOptions: ApplicationStatus[] = ["SUBMITTED", "ACCEPTED", "REJECTED", "RESERVED"];
@@ -54,7 +54,7 @@ export default function ApplicationsPage() {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     await createApplication({
-      studentId: String(fd.get("studentId") || ""),
+      studentId: Number(fd.get("studentId") || 0),
       roomId: (String(fd.get("roomId") || "") || undefined) as any,
       points: Number(fd.get("points") || 0),
       status: String(fd.get("status") || "SUBMITTED") as ApplicationStatus,
@@ -128,7 +128,7 @@ export default function ApplicationsPage() {
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {rows.map((a) => {
-                  const st = students.find((s) => s.id === a.studentId);
+                  const st = students.find((s) => s.id = a.studentId);
                   return (
                     <tr key={a.id} className="hover:bg-gray-50">
                       <td className="px-3 py-2">{st ? `${st.firstName} ${st.lastName}` : a.studentId}</td>
@@ -138,7 +138,7 @@ export default function ApplicationsPage() {
                       <td className="px-3 py-2">{/* createdAt render ako ga dobijaš */}</td>
                       <td className="px-3 py-2 text-right">
                         <div className="flex gap-2 justify-end flex-wrap">
-                          {(["SUBMITTED","ACCEPTED","REJECTED","RESERVED"] as ApplicationStatus[])
+                          {(["SUBMITTED", "ACCEPTED", "REJECTED", "RESERVED"] as ApplicationStatus[])
                             .filter((s) => s !== a.status)
                             .map((s) => (
                               <button
@@ -163,65 +163,6 @@ export default function ApplicationsPage() {
           </div>
         </Card>
 
-        <Card title="Create application">
-          <form onSubmit={onCreate} className="grid gap-3 max-w-2xl">
-            <div className="grid md:grid-cols-2 gap-3">
-              <div className="grid gap-1">
-                <Label>Student</Label>
-                <select name="studentId" required className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" defaultValue="">
-                  <option value="" disabled>Select student…</option>
-                  {students.map((s) => (
-                    <option key={s.id} value={s.id}>{s.firstName} {s.lastName} ({s.index})</option>
-                  ))}
-                </select>
-              </div>
-              <div className="grid gap-1">
-                <Label>Dorm (filter rooms)</Label>
-                <select
-                  className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  value={createDormId}
-                  onChange={(e) => setCreateDormId(e.target.value)}
-                >
-                  <option value="">—</option>
-                  {dorms.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
-                </select>
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-3">
-              <div className="grid gap-1">
-                <Label>Room (optional)</Label>
-                <select
-                  name="roomId"
-                  className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  defaultValue=""
-                  disabled={!createDormId}
-                >
-                  <option value="">—</option>
-                  {rooms.map((r) => (
-                    <option key={r.id} value={r.id}>{r.number} (cap: {r.capacity})</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="grid gap-1">
-                <Label>Status</Label>
-                <Select name="status" defaultValue="SUBMITTED">
-                  {statusOptions.map((s) => <option key={s} value={s}>{s}</option>)}
-                </Select>
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-3">
-              <div className="grid gap-1">
-                <Label>Points</Label>
-                <Input type="number" min={0} name="points" />
-              </div>
-            </div>
-
-            <PrimaryBtn type="submit">Create</PrimaryBtn>
-          </form>
-        </Card>
       </div>
     </div>
   );
