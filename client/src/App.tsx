@@ -12,7 +12,6 @@ import NewRegisterPage from "./pages/RegisterPage";
 import ForbiddenPage from "./pages/ForbiddenPage";
 import { GuestOnly, RequireAuth, RequireRole } from "./auth/routeGuard";
 import OpenDataPage from "./pages/OpenData";
-import StudentsLayout from "./pages/admin/StudentsLayout";
 import UserProfilePage from "./pages/UserProfilePage";
 
 export default function App() {
@@ -61,21 +60,42 @@ export default function App() {
 
           <Route path="dorms" element={<DormsPage />} />
           <Route path="rooms" element={<RoomsPage />} />
+          <Route path="students" element={<StudentsPage />} />
+          <Route path="applications" element={<ApplicationsPage />} />
+          <Route path="payments" element={<PaymentsPage />} />
+
         </Route>
+
         <Route
-          path="/students"
+          path="/staff"
           element={
-            <RequireRole allow={["ADMIN", "STAFF"]}>
-              <StudentsLayout />
+            <RequireRole allow={["STAFF"]}>
+              <AdminLayout />
             </RequireRole>
           }
         >
-          <Route index element={<Navigate to="students" replace />} />
+          <Route index element={<Navigate to="applications" replace />} />
 
           <Route path="students" element={<StudentsPage />} />
           <Route path="applications" element={<ApplicationsPage />} />
           <Route path="payments" element={<PaymentsPage />} />
+
         </Route>
+
+        <Route
+          path="/student"
+          element={
+            <RequireRole allow={["STUDENT"]}>
+              <AdminLayout />
+            </RequireRole>
+          }
+        >
+          <Route index element={<Navigate to="applications" replace />} />
+
+          <Route path="applications" element={<ApplicationsPage />} />
+
+        </Route>
+
 
         <Route path="/403" element={<ForbiddenPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
