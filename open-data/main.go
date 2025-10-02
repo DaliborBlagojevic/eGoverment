@@ -31,6 +31,7 @@ func main() {
 	api := router.Group("")
 	{
 		api.GET("/dorms", dormsHandler.ListDorms)
+		api.GET("/dorms.pdf", dormsHandler.DormsPDF)
 	}
 
 	url := fmt.Sprintf("%s:%d", cfg.ServiceHost, cfg.ServicePort)

@@ -15,7 +15,7 @@ const NavItem = ({ to, label, icon }: { to: string; label: string; icon?: React.
     </NavLink>
 );
 
-export default function AdminLayout() {
+export default function StudentsLayout() {
     return (
         <div className="min-h-screen bg-gray-50">
             <Header />
@@ -26,8 +26,9 @@ export default function AdminLayout() {
                 <aside className="col-span-12 lg:col-span-3">
                     <div className="bg-white border border-gray-200 rounded-2xl p-3 shadow-sm sticky top-20">
                         <nav className="grid gap-1">
-                            <NavItem to="/admin/dorms" label="Dorms" />
-                            <NavItem to="/admin/rooms" label="Rooms" />
+                            <NavItem to="/students/students" label="Students" />
+                            <NavItem to="/students/applications" label="Applications" />
+                            <NavItem to="/students/payments" label="Payments" />
                         </nav>
                     </div>
                 </aside>
