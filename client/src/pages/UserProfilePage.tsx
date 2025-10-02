@@ -31,7 +31,10 @@ const UserProfilePage: React.FC = () => {
     avatarUrl: fallbackAvatar,
   });
   const [submitting, setSubmitting] = useState(false);
-  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [message, setMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -64,8 +67,7 @@ const UserProfilePage: React.FC = () => {
   };
 
   const onField =
-    (key: keyof UserProfile) =>
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    (key: keyof UserProfile) => (e: React.ChangeEvent<HTMLInputElement>) => {
       setProfile((p) => ({ ...p, [key]: e.target.value }));
     };
 
@@ -91,7 +93,10 @@ const UserProfilePage: React.FC = () => {
 
       setMessage({ type: "success", text: "Profile updated successfully." });
     } catch (err: any) {
-      setMessage({ type: "error", text: err?.message ?? "Failed to update profile." });
+      setMessage({
+        type: "error",
+        text: err?.message ?? "Failed to update profile.",
+      });
     } finally {
       setSubmitting(false);
     }
@@ -133,7 +138,8 @@ const UserProfilePage: React.FC = () => {
                     alt="User avatar"
                     className="h-40 w-40 rounded-2xl object-cover ring-1 ring-gray-200"
                     onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).src = fallbackAvatar;
+                      (e.currentTarget as HTMLImageElement).src =
+                        fallbackAvatar;
                     }}
                   />
                   <button
@@ -155,7 +161,9 @@ const UserProfilePage: React.FC = () => {
 
                 <div className="mt-4 text-center">
                   <p className="text-sm text-gray-500">Email</p>
-                  <p className="font-medium text-gray-900 break-all">{profile.email}</p>
+                  <p className="font-medium text-gray-900 break-all">
+                    {profile.email}
+                  </p>
                 </div>
               </div>
             </div>
@@ -163,13 +171,22 @@ const UserProfilePage: React.FC = () => {
 
           {/* Right: Editable form */}
           <section className="col-span-12 lg:col-span-8">
-            <form onSubmit={saveProfile} className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-              <h2 className="text-lg font-semibold text-gray-900">Personal Information</h2>
-              <p className="mt-1 text-sm text-gray-500">Update your profile details.</p>
+            <form
+              onSubmit={saveProfile}
+              className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
+            >
+              <h2 className="text-lg font-semibold text-gray-900">
+                Personal Information
+              </h2>
+              <p className="mt-1 text-sm text-gray-500">
+                Update your profile details.
+              </p>
 
               <div className="mt-5 grid gap-4 md:grid-cols-2">
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">First name</label>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    First name
+                  </label>
                   <input
                     value={profile.firstName}
                     onChange={onField("firstName")}
@@ -178,7 +195,9 @@ const UserProfilePage: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">Last name</label>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    Last name
+                  </label>
                   <input
                     value={profile.lastName}
                     onChange={onField("lastName")}
@@ -187,7 +206,9 @@ const UserProfilePage: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">Username</label>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    Username
+                  </label>
                   <input
                     value={profile.username}
                     onChange={onField("username")}
@@ -196,7 +217,9 @@ const UserProfilePage: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">Faculty</label>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    Faculty
+                  </label>
                   <input
                     value={profile.faculty || ""}
                     onChange={onField("faculty")}
@@ -205,7 +228,9 @@ const UserProfilePage: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">Index</label>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    Index
+                  </label>
                   <input
                     value={profile.index || ""}
                     onChange={onField("index")}
@@ -214,7 +239,9 @@ const UserProfilePage: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">Role</label>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    Role
+                  </label>
                   <input
                     value={profile.role || ""}
                     readOnly
@@ -245,16 +272,23 @@ const UserProfilePage: React.FC = () => {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                setMessage({ type: "success", text: "Password changed (demo)." });
+                setMessage({
+                  type: "success",
+                  text: "Password changed (demo).",
+                });
               }}
               className="mt-6 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
             >
               <h2 className="text-lg font-semibold text-gray-900">Security</h2>
-              <p className="mt-1 text-sm text-gray-500">Update your password.</p>
+              <p className="mt-1 text-sm text-gray-500">
+                Update your password.
+              </p>
 
               <div className="mt-5 grid gap-4 md:grid-cols-2">
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">New password</label>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    New password
+                  </label>
                   <input
                     type="password"
                     className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
@@ -262,7 +296,9 @@ const UserProfilePage: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">Confirm password</label>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    Confirm password
+                  </label>
                   <input
                     type="password"
                     className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
