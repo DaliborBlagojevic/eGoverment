@@ -141,19 +141,18 @@ const OpenDataPage: React.FC = () => {
 
                     <PdfImageCard
                         title="All Students"
-                        imgSrc="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1200&q=80"
-                        imgAlt="Students studying in a library"
+                        imgSrc="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=1200&auto=format&fit=crop"
+                        imgAlt="Students in front of a campus building"
                         pdfPath="/api/opendata/students.pdf"
                         page={page}
                         pageSize={pageSize}
                         onView={onView}
-                    // disabled // enable once /students.pdf is live
                     />
 
                     <PdfImageCard
                         title="Applications (Coming Soon)"
-                        imgSrc="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=1200&auto=format&fit=crop"
-                        imgAlt="Documents and application forms"
+                        imgSrc="https://source.unsplash.com/1200x600/?application,forms,documents,students"
+                        imgAlt="Application forms and documents"
                         pdfPath="/api/opendata/applications.pdf"
                         page={page}
                         pageSize={pageSize}

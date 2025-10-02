@@ -7,6 +7,7 @@ export type Role = "ADMIN" | "STAFF" | "STUDENT";
 export interface User {
   ID?: number;                 // gorm primary key
   email?: string;
+  username?: string;
   role?: Role;
   index?: string | null;
   firstName?: string;

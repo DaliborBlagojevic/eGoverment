@@ -103,7 +103,7 @@ func getStudents(db *gorm.DB) gin.HandlerFunc {
 
 func getStudentByID(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		id, ok := parseUUID(c, "id")
+		id, ok := parseUintParam(c, "id")
 		if !ok {
 			return
 		}

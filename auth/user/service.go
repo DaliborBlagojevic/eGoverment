@@ -88,18 +88,17 @@ func login(db *gorm.DB, issuer string, secret []byte) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "email/username and password are required"})
 			return
 		}
-		
+
 		u, err := getUserByEmailAndPassword(db, email)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
 			return
 		}
-		
+
 		if err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(req.Password)); err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
 			return
 		}
-
 
 		now := time.Now()
 		exp := now.Add(15 * time.Minute)
@@ -108,6 +107,7 @@ func login(db *gorm.DB, issuer string, secret []byte) gin.HandlerFunc {
 			"sub":  u.Email,
 			"iss":  issuer,
 			"role": u.Role,
+			"id":   u.ID,
 			"iat":  now.Unix(),
 			"exp":  exp.Unix(),
 		}
