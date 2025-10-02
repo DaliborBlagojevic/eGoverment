@@ -77,6 +77,11 @@ type Payment struct {
 	ApplicationID uuid.UUID `gorm:"unique;not null" json:"applicationId"`
 }
 
+type ChangePassReq struct {
+	NewPassword string `json:"newPassword"`
+	OldPassword string `json:"oldPassword"`
+}
+
 /* ========== Enum ========== */
 
 type ApplicationStatus string

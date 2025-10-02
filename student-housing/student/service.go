@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 
 	"student-housting/types"
@@ -146,7 +147,6 @@ func UpdateUserRole(db *gorm.DB) gin.HandlerFunc {
 		}
 		newRole := types.Role(strings.ToUpper(body.Role))
 
-	
 		var u types.User
 		if err := db.First(&u, "id = ?", id).Error; err != nil {
 			if err == gorm.ErrRecordNotFound {
@@ -157,7 +157,6 @@ func UpdateUserRole(db *gorm.DB) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to load user"})
 			return
 		}
-
 
 		// Update role
 		if err := db.Model(&types.User{}).
@@ -172,7 +171,6 @@ func UpdateUserRole(db *gorm.DB) gin.HandlerFunc {
 		c.JSON(http.StatusOK, u)
 	}
 }
-
 
 func createStudent(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -199,11 +197,9 @@ func createStudent(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
-
-
 func updateStudent(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		id, ok := parseUUID(c, "id")
+		id, ok := parseUintParam(c, "id")
 		if !ok {
 			return
 		}
@@ -225,6 +221,47 @@ func updateStudent(db *gorm.DB) gin.HandlerFunc {
 		s.FirstName = in.FirstName
 		s.LastName = in.LastName
 		s.Faculty = in.Faculty
+		if err := db.Save(&s).Error; err != nil {
+			jsonErr(c, http.StatusInternalServerError, "failed to update student")
+			return
+		}
+		c.JSON(http.StatusOK, s)
+	}
+}
+
+func changePassword(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		id, ok := parseUintParam(c, "id")
+		if !ok {
+			return
+		}
+		var in types.ChangePassReq
+		if err := c.ShouldBindJSON(&in); err != nil {
+			jsonErr(c, http.StatusBadRequest, "invalid json")
+			return
+		}
+
+		var s types.User
+		if err := db.First(&s, "id = ?", id).Error; err != nil {
+			if err == gorm.ErrRecordNotFound {
+				jsonErr(c, http.StatusNotFound, "student not found")
+				return
+			}
+			jsonErr(c, http.StatusInternalServerError, "failed to fetch student")
+			return
+		}
+
+		if err := bcrypt.CompareHashAndPassword([]byte(s.Password), []byte(in.OldPassword)); err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "incorect old password"})
+			return
+		}
+
+		hash, err := bcrypt.GenerateFromPassword([]byte(in.NewPassword), bcrypt.DefaultCost)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to hash password"})
+			return
+		}
+		s.Password = string(hash)
 		if err := db.Save(&s).Error; err != nil {
 			jsonErr(c, http.StatusInternalServerError, "failed to update student")
 			return
@@ -650,4 +687,18 @@ func deletePayment(db *gorm.DB) gin.HandlerFunc {
 		}
 		c.Status(http.StatusNoContent)
 	}
+}
+
+func parseUintParam(c *gin.Context, name string) (uint, bool) {
+	raw := c.Param(name)
+	if raw == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "missing " + name})
+		return 0, false
+	}
+	n, err := strconv.ParseUint(raw, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid " + name})
+		return 0, false
+	}
+	return uint(n), true
 }
