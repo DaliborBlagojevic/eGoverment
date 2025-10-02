@@ -54,6 +54,53 @@ func isValidStatus(s types.ApplicationStatus) bool {
 
 /* ===================== STUDENT ===================== */
 
+func getUsers(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var students []types.User
+		var totalCount int64
+
+		searchQuery := c.DefaultQuery("name", "")
+		page, pageSize, offset := pagination(c)
+
+		if searchQuery != "" {
+			// Requires pg_trgm extension for similarity(); otherwise replace with ILIKE.
+			err := db.Raw(`
+				SELECT * FROM users
+				WHERE similarity(first_name, ?) > 0.3 OR similarity(last_name, ?) > 0.3
+				ORDER BY GREATEST(similarity(first_name, ?), similarity(last_name, ?)) DESC
+				LIMIT ? OFFSET ?`,
+				searchQuery, searchQuery, searchQuery, searchQuery, pageSize, offset,
+			).Scan(&students).Error
+			if err != nil {
+				jsonErr(c, http.StatusInternalServerError, "failed to retrieve students")
+				return
+			}
+			if err := db.Raw(`
+				SELECT COUNT(*) FROM students
+				WHERE similarity(first_name, ?) > 0.3 OR similarity(last_name, ?) > 0.3`,
+				searchQuery, searchQuery,
+			).Scan(&totalCount).Error; err != nil {
+				jsonErr(c, http.StatusInternalServerError, "failed to count students")
+				return
+			}
+		} else {
+			if err := db.Model(&types.User{}).Count(&totalCount).Error; err != nil {
+				jsonErr(c, http.StatusInternalServerError, "failed to count students")
+				return
+			}
+			if err := db.Offset(offset).Limit(pageSize).Find(&students).Error; err != nil {
+				jsonErr(c, http.StatusInternalServerError, "failed to retrieve students")
+				return
+			}
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"students":   students,
+			"pagination": gin.H{"page": page, "pageSize": pageSize, "totalCount": totalCount},
+		})
+	}
+}
+
 func getStudents(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var students []types.User
@@ -542,7 +589,7 @@ func createApplication(db *gorm.DB) gin.HandlerFunc {
 			jsonErr(c, http.StatusBadRequest, "invalid json")
 			return
 		}
-		if a.StudentID == uuid.Nil {
+		if a.StudentID == 0 {
 			jsonErr(c, http.StatusBadRequest, "studentId is required")
 			return
 		}

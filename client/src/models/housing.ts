@@ -5,7 +5,7 @@ export type ApplicationStatus =
   | "RESERVED";
 
 export type Student = {
-  id: string;
+  id: number;
   index: string;
   firstName: string;
   lastName: string;
@@ -31,7 +31,7 @@ export type Application = {
   id: string;
   points: number;
   status: ApplicationStatus;
-  studentId: string;
+  studentId: number;
   roomId?: string | null;
 };
 

@@ -13,6 +13,11 @@ import ForbiddenPage from "./pages/ForbiddenPage";
 import { GuestOnly, RequireAuth, RequireRole } from "./auth/routeGuard";
 import OpenDataPage from "./pages/OpenData";
 import UserProfilePage from "./pages/UserProfilePage";
+import StudentLayout from "./pages/student/AdminLayout";
+import ApplicationsPageStudent from "./pages/student/ApplicationsPageStudent";
+import ApplicationsPageStaff from "./pages/staff/ApplicationsPageStudent";
+import PaymentsPageStaff from "./pages/staff/PaymentsPage";
+import StaffLayout from "./pages/staff/AdminLayout";
 
 export default function App() {
   return (
@@ -51,7 +56,7 @@ export default function App() {
         <Route
           path="/admin"
           element={
-            <RequireRole allow={["ADMIN", "STAFF"]}>
+            <RequireRole allow={["ADMIN"]}>
               <AdminLayout />
             </RequireRole>
           }
@@ -70,15 +75,14 @@ export default function App() {
           path="/staff"
           element={
             <RequireRole allow={["STAFF"]}>
-              <AdminLayout />
+              <StaffLayout />
             </RequireRole>
           }
         >
           <Route index element={<Navigate to="applications" replace />} />
 
-          <Route path="students" element={<StudentsPage />} />
-          <Route path="applications" element={<ApplicationsPage />} />
-          <Route path="payments" element={<PaymentsPage />} />
+          <Route path="applications" element={<ApplicationsPageStaff />} />
+          <Route path="payments" element={<PaymentsPageStaff />} />
 
         </Route>
 
@@ -86,13 +90,13 @@ export default function App() {
           path="/student"
           element={
             <RequireRole allow={["STUDENT"]}>
-              <AdminLayout />
+              <StudentLayout />
             </RequireRole>
           }
         >
           <Route index element={<Navigate to="applications" replace />} />
 
-          <Route path="applications" element={<ApplicationsPage />} />
+          <Route path="applications" element={<ApplicationsPageStudent />} />
 
         </Route>
 
