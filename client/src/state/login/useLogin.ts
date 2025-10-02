@@ -6,11 +6,13 @@ import { useSetAtom } from "jotai";
 import { companyAtom } from "../companies/companyAtom";
 import type { LoginRequest, LoginResponse } from "../../models/login";
 import type { Company } from "../../models/company";
+import { User } from "./useRegister";
+import { useCallback } from "react";
 
 type JwtPayload = {
   exp?: number;
   iat?: number;
-  companyId?: number;
+  id?: number;
   sub?: string;
   role?: string;
 };
@@ -18,6 +20,35 @@ type JwtPayload = {
 export const useLogin = () => {
   const navigate = useNavigate();
   const setCompany = useSetAtom(companyAtom);
+
+const getUserById = useCallback(async () => {
+  const http = HttpService.getInstance();
+  const token = Cookies.get("auth.token");
+  if (!token) {
+    throw new Error("Nema JWT tokena (auth.token).");
+  }
+
+  let userId: number | undefined;
+  try {
+    const decoded = jwtDecode<JwtPayload>(token);
+    if (typeof decoded.id === "number") {
+      userId = decoded.id;
+    } else if (decoded.sub && /^\d+$/.test(decoded.sub)) {
+      userId = Number(decoded.sub);
+    }
+  } catch {
+    // noop
+  }
+
+  if (typeof userId !== "number") {
+    throw new Error("User ID nije pronađen u tokenu.");
+  }
+
+  // ✅ prosledi i drugi parametar {}
+  const user = await http.get<User>(`/student-housing/api/students/${userId}`, {});
+  console.log(user, "aaa");
+  return user;
+}, []);
 
   const login = async (payload: LoginRequest) => {
     const http = HttpService.getInstance();
@@ -38,11 +69,11 @@ export const useLogin = () => {
     const tokenType = resp.token_type || "Bearer";
     const seconds = Number(resp.expires_in) || 0;
 
-    let companyId: number | undefined;
+    let id: number | undefined;
     let jwtExp: number | undefined;
     try {
       const decoded = jwtDecode<JwtPayload>(token);
-      companyId = decoded.companyId;
+      id = decoded.id;
       jwtExp = decoded.exp;
     } catch {
       // ako token nije JWT ili je neispravan – i dalje možemo raditi sa access_token + expires_in
@@ -68,9 +99,9 @@ export const useLogin = () => {
       path: "/",
     });
 
-    if (typeof companyId === "number") {
+    if (typeof id === "number") {
       const company: Company = {
-        id: companyId,
+        id: id,
         companyName: "",
         email: "",
         password: "",
@@ -82,8 +113,8 @@ export const useLogin = () => {
 
     navigate("/main");
 
-    return { token, companyId, tokenType, expiresIn: resp.expires_in };
+    return { token, id, tokenType, expiresIn: resp.expires_in };
   };
 
-  return { login };
+  return { login, getUserById };
 };
