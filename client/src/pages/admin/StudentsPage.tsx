@@ -23,6 +23,7 @@ export default function StudentsPage() {
       firstName: String(fd.get("firstName") || ""),
       lastName: String(fd.get("lastName") || ""),
       faculty: String(fd.get("faculty") || ""),
+      email: String(fd.get("enail") || ""),
     });
     e.currentTarget.reset();
     load();

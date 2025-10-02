@@ -1,6 +1,5 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import AdminPage from "./AdminPage";
 import Footer from "../components/footer";
 import Header from "../components/header";
 
@@ -11,7 +10,7 @@ const MainPage: React.FC = () => {
       <Header />
 
 
-      <AdminPage />
+      <MainPage />
       {/* Footer */}
       <Footer />
     </div>

@@ -25,19 +25,19 @@ export default function AdminLanding() {
                 Quick access to public datasets and search tools.
               </p>
               <div className="mt-4">
-                <a
-                  href="#"
+                <Link
+                  to="/open-data"
                   className="text-indigo-600 hover:text-indigo-700 text-sm font-medium underline"
                 >
                   Open module →
-                </a>
+                </Link>
               </div>
             </div>
 
             <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900">Student Dorms</h3>
+              <h3 className="text-lg font-semibold text-gray-900">Dorms</h3>
               <p className="mt-2 text-sm text-gray-600">
-                Manage accommodation, applications, and lists.
+                Manage applications, and lists.
               </p>
               <div className="mt-4">
                 <Link
@@ -50,17 +50,18 @@ export default function AdminLanding() {
             </div>
 
             <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900">Settings</h3>
+              <h3 className="text-lg font-semibold text-gray-900">Students</h3>
               <p className="mt-2 text-sm text-gray-600">
-                Profile, security, preferences, and integrations.
+                Manage accommodation, and lists.
               </p>
               <div className="mt-4">
-                <a
-                  href="#"
+                
+                <Link
+                  to="/students/students"
                   className="text-gray-900 hover:text-black text-sm font-medium underline"
                 >
                   Open settings →
-                </a>
+                </Link>
               </div>
             </div>
           </div>

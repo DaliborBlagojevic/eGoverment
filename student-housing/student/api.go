@@ -10,6 +10,7 @@ func WithStudentAPI(r *gin.RouterGroup, db *gorm.DB) {
 	r.GET("/students/:id", getStudentByID(db))
 	r.POST("/students", createStudent(db))
 	r.PUT("/students/:id", updateStudent(db))
+	r.PATCH("/students/:id", changePassword(db))
 	r.DELETE("/students/:id", deleteStudent(db))
 	r.PATCH("/api/users/:id/role", UpdateUserRole(db))
 }
