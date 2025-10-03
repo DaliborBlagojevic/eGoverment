@@ -21,7 +21,7 @@ func NewDormsHandler(hc *upstream.HousingClient) *DormsHandler {
 	return &DormsHandler{Housing: hc}
 }
 
-// --------- DORMS ---------
+/* ========================== DORMS (real) ========================== */
 
 func (h *DormsHandler) ListDorms(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -48,27 +48,21 @@ func (h *DormsHandler) DormsPDF(c *gin.Context) {
 
 	pdf := newPDF("Available Dorms")
 
-	// header tabele
-	wName, wAddr, wCity, wWebsite := 70.0, 40.0, 25.0, 55.0
+	wName, wAddr := 70.0, 40.0
 	hRow := 8.0
 	pdf.SetFillColor(240, 240, 240)
 	pdf.CellFormat(wName, hRow, "Name", "1", 0, "L", true, 0, "")
 	pdf.CellFormat(wAddr, hRow, "Address", "1", 0, "L", true, 0, "")
-	pdf.CellFormat(wCity, hRow, "City", "1", 0, "L", true, 0, "")
-	pdf.CellFormat(wWebsite, hRow, "Website", "1", 0, "L", true, 0, "")
+
 	pdf.Ln(-1)
 	pdf.SetFont("Helvetica", "", 10)
 
 	for _, d := range resp.Items {
 		name := truncate(pdf, d.Naziv, wName-2)
 		addr := truncate(pdf, d.Adresa, wAddr-2)
-		city := truncate(pdf, d.Grad, wCity-2)
-		web := truncate(pdf, d.Website, wWebsite-2)
 
 		pdf.CellFormat(wName, hRow, name, "1", 0, "L", false, 0, "")
 		pdf.CellFormat(wAddr, hRow, addr, "1", 0, "L", false, 0, "")
-		pdf.CellFormat(wCity, hRow, city, "1", 0, "L", false, 0, "")
-		pdf.CellFormat(wWebsite, hRow, web, "1", 0, "L", false, 0, "")
 		pdf.Ln(-1)
 	}
 
@@ -76,12 +70,12 @@ func (h *DormsHandler) DormsPDF(c *gin.Context) {
 	writePDFResponse(c, pdf, fmt.Sprintf("dorms_%s.pdf", nowSlug()), download)
 }
 
-// --------- STUDENTS ---------
+/* ========================== STUDENTS (fake PDF) ========================== */
 
 func (h *DormsHandler) ListStudents(c *gin.Context) {
+	// Ostavili smo JSON endpoint ako ti treba real, ali frontend ga ne koristi.
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	size, _ := strconv.Atoi(c.DefaultQuery("pageSize", "20"))
-
 	resp, err := h.Housing.ListStudents(c.Request.Context(), page, size)
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"error": "upstream error", "details": err.Error()})
@@ -91,48 +85,48 @@ func (h *DormsHandler) ListStudents(c *gin.Context) {
 }
 
 func (h *DormsHandler) StudentsPDF(c *gin.Context) {
-	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	size, _ := strconv.Atoi(c.DefaultQuery("pageSize", "50"))
 	download := c.Query("download") == "1"
-
-	resp, err := h.Housing.ListStudents(c.Request.Context(), page, size)
-	if err != nil {
-		c.JSON(http.StatusBadGateway, gin.H{"error": "upstream error", "details": err.Error()})
-		return
-	}
 
 	pdf := newPDF("Students")
 	wFirst, wLast, wEmail, wIndex, wFaculty := 30.0, 35.0, 60.0, 25.0, 35.0
 	hRow := 8.0
 
-	pdf.SetFillColor(240, 240, 240)
-	pdf.CellFormat(wFirst, hRow, "First Name", "1", 0, "L", true, 0, "")
-	pdf.CellFormat(wLast, hRow, "Last Name", "1", 0, "L", true, 0, "")
-	pdf.CellFormat(wEmail, hRow, "Email", "1", 0, "L", true, 0, "")
-	pdf.CellFormat(wIndex, hRow, "Index", "1", 0, "L", true, 0, "")
-	pdf.CellFormat(wFaculty, hRow, "Faculty", "1", 0, "L", true, 0, "")
-	pdf.Ln(-1)
-	pdf.SetFont("Helvetica", "", 10)
+	headerRow(pdf,
+		[]float64{wFirst, wLast, wEmail, wIndex, wFaculty},
+		[]string{"First Name", "Last Name", "Email", "Index", "Faculty"},
+	)
 
-	for _, s := range resp.Items {
-		pdf.CellFormat(wFirst, hRow, truncate(pdf, s.FirstName, wFirst-2), "1", 0, "L", false, 0, "")
-		pdf.CellFormat(wLast, hRow, truncate(pdf, s.LastName, wLast-2), "1", 0, "L", false, 0, "")
-		pdf.CellFormat(wEmail, hRow, truncate(pdf, s.Email, wEmail-2), "1", 0, "L", false, 0, "")
-		pdf.CellFormat(wIndex, hRow, truncate(pdf, s.Index, wIndex-2), "1", 0, "L", false, 0, "")
-		pdf.CellFormat(wFaculty, hRow, truncate(pdf, s.Faculty, wFaculty-2), "1", 0, "L", false, 0, "")
-		pdf.Ln(-1)
+	rows := []struct {
+		First, Last, Email, Index, Faculty string
+	}{
+		{"Ana", "Jovanović", "ana@example.com", "E123/2021", "ETF"},
+		{"Marko", "Petrović", "marko@example.com", "E456/2020", "Matematika"},
+		{"Ivana", "Milić", "ivana@example.com", "E789/2022", "FON"},
+		{"Luka", "Nikolić", "luka@example.com", "E012/2023", "FTN"},
 	}
 
-	addFooter(pdf, resp.Pagination)
+	for _, r := range rows {
+		row(pdf, hRow,
+			[]float64{wFirst, wLast, wEmail, wIndex, wFaculty},
+			[]string{
+				truncate(pdf, r.First, wFirst-2),
+				truncate(pdf, r.Last, wLast-2),
+				truncate(pdf, r.Email, wEmail-2),
+				truncate(pdf, r.Index, wIndex-2),
+				truncate(pdf, r.Faculty, wFaculty-2),
+			},
+		)
+	}
+
+	addFooter(pdf, upstreamPaginationMock())
 	writePDFResponse(c, pdf, fmt.Sprintf("students_%s.pdf", nowSlug()), download)
 }
 
-// --------- PRICE PLANS ---------
+/* ========================== PRICE PLANS (fake PDF) ========================== */
 
 func (h *DormsHandler) ListPricePlans(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	size, _ := strconv.Atoi(c.DefaultQuery("pageSize", "20"))
-
 	resp, err := h.Housing.ListPricePlans(c.Request.Context(), page, size)
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"error": "upstream error", "details": err.Error()})
@@ -142,15 +136,7 @@ func (h *DormsHandler) ListPricePlans(c *gin.Context) {
 }
 
 func (h *DormsHandler) PricePlansPDF(c *gin.Context) {
-	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	size, _ := strconv.Atoi(c.DefaultQuery("pageSize", "50"))
 	download := c.Query("download") == "1"
-
-	resp, err := h.Housing.ListPricePlans(c.Request.Context(), page, size)
-	if err != nil {
-		c.JSON(http.StatusBadGateway, gin.H{"error": "upstream error", "details": err.Error()})
-		return
-	}
 
 	pdf := newPDF("Price Plans")
 	wDom, wRoom, wMonthly, wCurr, wUpd := 35.0, 30.0, 30.0, 20.0, 60.0
@@ -161,29 +147,39 @@ func (h *DormsHandler) PricePlansPDF(c *gin.Context) {
 		[]string{"Dom ID", "Room Type", "Monthly", "Currency", "Updated At"},
 	)
 
-	for _, r := range resp.Items {
+	now := time.Now().UTC().Format(time.RFC3339)
+	rows := []struct {
+		Dom, Room, Curr, Upd string
+		Monthly              float64
+	}{
+		{"d1", "single", "RSD", now, 18500},
+		{"d1", "double", "RSD", now, 14500},
+		{"d2", "single", "RSD", now, 21000},
+		{"d2", "triple", "RSD", now, 12000},
+	}
+
+	for _, r := range rows {
 		row(pdf, hRow,
 			[]float64{wDom, wRoom, wMonthly, wCurr, wUpd},
 			[]string{
-				truncate(pdf, r.DomID, wDom-2),
-				truncate(pdf, r.RoomType, wRoom-2),
+				truncate(pdf, r.Dom, wDom-2),
+				truncate(pdf, r.Room, wRoom-2),
 				fmt.Sprintf("%.2f", r.Monthly),
-				r.Currency,
-				truncate(pdf, r.UpdatedAt, wUpd-2),
+				r.Curr,
+				truncate(pdf, r.Upd, wUpd-2),
 			},
 		)
 	}
 
-	addFooter(pdf, resp.Pagination)
+	addFooter(pdf, upstreamPaginationMock())
 	writePDFResponse(c, pdf, fmt.Sprintf("price_plans_%s.pdf", nowSlug()), download)
 }
 
-// --------- DAILY AVAILABILITY ---------
+/* ========================== DAILY AVAILABILITY (fake PDF) ========================== */
 
 func (h *DormsHandler) ListDailyAvailability(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	size, _ := strconv.Atoi(c.DefaultQuery("pageSize", "20"))
-
 	resp, err := h.Housing.ListDailyAvailability(c.Request.Context(), page, size)
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"error": "upstream error", "details": err.Error()})
@@ -193,15 +189,7 @@ func (h *DormsHandler) ListDailyAvailability(c *gin.Context) {
 }
 
 func (h *DormsHandler) DailyAvailabilityPDF(c *gin.Context) {
-	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	size, _ := strconv.Atoi(c.DefaultQuery("pageSize", "50"))
 	download := c.Query("download") == "1"
-
-	resp, err := h.Housing.ListDailyAvailability(c.Request.Context(), page, size)
-	if err != nil {
-		c.JSON(http.StatusBadGateway, gin.H{"error": "upstream error", "details": err.Error()})
-		return
-	}
 
 	pdf := newPDF("Daily Availability")
 	wDom, wDate, wTotal, wFree := 50.0, 40.0, 40.0, 40.0
@@ -212,28 +200,39 @@ func (h *DormsHandler) DailyAvailabilityPDF(c *gin.Context) {
 		[]string{"Dom ID", "Date", "Total Beds", "Free Beds"},
 	)
 
-	for _, r := range resp.Items {
+	rows := []struct {
+		Dom  string
+		Date string
+		Tot  int
+		Free int
+	}{
+		{"d1", today(0), 120, 18},
+		{"d1", today(1), 120, 12},
+		{"d2", today(0), 95, 7},
+		{"d2", today(1), 95, 5},
+	}
+
+	for _, r := range rows {
 		row(pdf, hRow,
 			[]float64{wDom, wDate, wTotal, wFree},
 			[]string{
-				truncate(pdf, r.DomID, wDom-2),
+				truncate(pdf, r.Dom, wDom-2),
 				r.Date,
-				fmt.Sprintf("%d", r.TotalBeds),
-				fmt.Sprintf("%d", r.FreeBeds),
+				fmt.Sprintf("%d", r.Tot),
+				fmt.Sprintf("%d", r.Free),
 			},
 		)
 	}
 
-	addFooter(pdf, resp.Pagination)
+	addFooter(pdf, upstreamPaginationMock())
 	writePDFResponse(c, pdf, fmt.Sprintf("daily_availability_%s.pdf", nowSlug()), download)
 }
 
-// --------- APPLICATION STATS ---------
+/* ========================== APPLICATION STATS (fake PDF) ========================== */
 
 func (h *DormsHandler) ListApplicationStats(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	size, _ := strconv.Atoi(c.DefaultQuery("pageSize", "20"))
-
 	resp, err := h.Housing.ListApplicationStats(c.Request.Context(), page, size)
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"error": "upstream error", "details": err.Error()})
@@ -243,15 +242,7 @@ func (h *DormsHandler) ListApplicationStats(c *gin.Context) {
 }
 
 func (h *DormsHandler) ApplicationStatsPDF(c *gin.Context) {
-	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	size, _ := strconv.Atoi(c.DefaultQuery("pageSize", "50"))
 	download := c.Query("download") == "1"
-
-	resp, err := h.Housing.ListApplicationStats(c.Request.Context(), page, size)
-	if err != nil {
-		c.JSON(http.StatusBadGateway, gin.H{"error": "upstream error", "details": err.Error()})
-		return
-	}
 
 	pdf := newPDF("Application Stats")
 	wDom, wDate, wPred, wPrih, wOdb, wRez := 35.0, 30.0, 25.0, 25.0, 25.0, 30.0
@@ -262,30 +253,39 @@ func (h *DormsHandler) ApplicationStatsPDF(c *gin.Context) {
 		[]string{"Dom ID", "Date", "Predate", "Prihvacene", "Odbijene", "Rezervisane"},
 	)
 
-	for _, r := range resp.Items {
+	rows := []struct {
+		Dom, Date         string
+		Pred, Acc, Rej, Res int
+	}{
+		{"d1", today(0), 12, 6, 3, 2},
+		{"d1", today(1), 9, 4, 2, 1},
+		{"d2", today(0), 7, 3, 2, 1},
+		{"d2", today(1), 11, 5, 3, 2},
+	}
+
+	for _, r := range rows {
 		row(pdf, hRow,
 			[]float64{wDom, wDate, wPred, wPrih, wOdb, wRez},
 			[]string{
-				truncate(pdf, r.DomID, wDom-2),
+				truncate(pdf, r.Dom, wDom-2),
 				r.Date,
-				fmt.Sprintf("%d", r.Predate),
-				fmt.Sprintf("%d", r.Prihvacene),
-				fmt.Sprintf("%d", r.Odbijene),
-				fmt.Sprintf("%d", r.Rezervisane),
+				fmt.Sprintf("%d", r.Pred),
+				fmt.Sprintf("%d", r.Acc),
+				fmt.Sprintf("%d", r.Rej),
+				fmt.Sprintf("%d", r.Res),
 			},
 		)
 	}
 
-	addFooter(pdf, resp.Pagination)
+	addFooter(pdf, upstreamPaginationMock())
 	writePDFResponse(c, pdf, fmt.Sprintf("application_stats_%s.pdf", nowSlug()), download)
 }
 
-// --------- PAYMENT STATS ---------
+/* ========================== PAYMENT STATS (fake PDF) ========================== */
 
 func (h *DormsHandler) ListPaymentStats(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	size, _ := strconv.Atoi(c.DefaultQuery("pageSize", "20"))
-
 	resp, err := h.Housing.ListPaymentStats(c.Request.Context(), page, size)
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"error": "upstream error", "details": err.Error()})
@@ -295,15 +295,7 @@ func (h *DormsHandler) ListPaymentStats(c *gin.Context) {
 }
 
 func (h *DormsHandler) PaymentStatsPDF(c *gin.Context) {
-	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	size, _ := strconv.Atoi(c.DefaultQuery("pageSize", "50"))
 	download := c.Query("download") == "1"
-
-	resp, err := h.Housing.ListPaymentStats(c.Request.Context(), page, size)
-	if err != nil {
-		c.JSON(http.StatusBadGateway, gin.H{"error": "upstream error", "details": err.Error()})
-		return
-	}
 
 	pdf := newPDF("Payment Stats")
 	wDom, wDate, wCount, wSum, wCurr := 35.0, 30.0, 25.0, 35.0, 25.0
@@ -314,24 +306,35 @@ func (h *DormsHandler) PaymentStatsPDF(c *gin.Context) {
 		[]string{"Dom ID", "Date", "Count", "Sum", "Currency"},
 	)
 
-	for _, r := range resp.Items {
+	rows := []struct {
+		Dom, Date, Curr string
+		Count           int
+		Sum             float64
+	}{
+		{"d1", today(0), "RSD", 5, 72500},
+		{"d1", today(1), "RSD", 4, 58000},
+		{"d2", today(0), "RSD", 3, 41000},
+		{"d2", today(1), "RSD", 2, 28500},
+	}
+
+	for _, r := range rows {
 		row(pdf, hRow,
 			[]float64{wDom, wDate, wCount, wSum, wCurr},
 			[]string{
-				truncate(pdf, r.DomID, wDom-2),
+				truncate(pdf, r.Dom, wDom-2),
 				r.Date,
 				fmt.Sprintf("%d", r.Count),
 				fmt.Sprintf("%.2f", r.Sum),
-				r.Currency,
+				r.Curr,
 			},
 		)
 	}
 
-	addFooter(pdf, resp.Pagination)
+	addFooter(pdf, upstreamPaginationMock())
 	writePDFResponse(c, pdf, fmt.Sprintf("payment_stats_%s.pdf", nowSlug()), download)
 }
 
-// -------------------- UTILS --------------------
+/* ========================== Shared helpers ========================== */
 
 func newPDF(title string) *gofpdf.Fpdf {
 	pdf := gofpdf.New("P", "mm", "A4", "")
@@ -376,8 +379,6 @@ func row(pdf *gofpdf.Fpdf, h float64, widths []float64, cols []string) {
 	pdf.Ln(-1)
 }
 
-// skraćivanje teksta da stane u ćeliju
-// — koristi ASCII "..." (ne Unicode ellipsu) i dodaje je SAMO kad je string zaista skraćen
 func truncate(pdf *gofpdf.Fpdf, s string, maxW float64) string {
 	if s == "" {
 		return ""
@@ -411,4 +412,12 @@ func writePDFResponse(c *gin.Context, pdf *gofpdf.Fpdf, filename string, downloa
 
 func nowSlug() string {
 	return time.Now().Format("20060102_1504")
+}
+
+func upstreamPaginationMock() upstream.Pagination {
+	return upstream.Pagination{Page: 1, PageSize: 50, TotalCount: 4}
+}
+
+func today(addDays int) string {
+	return time.Now().AddDate(0, 0, addDays).UTC().Format("2006-01-02")
 }
